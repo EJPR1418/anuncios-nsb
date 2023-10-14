@@ -1,37 +1,52 @@
-import React from 'react';
-import { ImageBackground, StyleSheet, View, Image } from 'react-native';
+import React from "react";
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { DatePickerModal } from 'react-native-paper-dates';
+import { TouchableOpacity, StyleSheet, View, ScrollView } from 'react-native';
+import {
+  Card,
+  Title,
+  Text,
+  Button,
+  Paragraph,
+  Avatar,
+  List,
+  PaperProvider,
+} from 'react-native-paper';
+import MainContainer from "../components/MainContainer";
 
-function HomeScreen(props) {
+function HomeScreen({ navigation }) {
+    const [date, setDate] = React.useState(undefined);
+    const [open, setOpen] = React.useState(false);
+    const onDismissSingle = React.useCallback(() => {
+      setOpen(false);
+    }, [setOpen]);
+    
+    const onConfirmSingle = React.useCallback(
+      (params) => {
+        setOpen(false);
+        setDate(params.date);
+      },
+      [setOpen, setDate]
+    );
  return(
- <ImageBackground 
- source={require('../assets/cloud_background.jpg')}
- style={styles.background}>
-    <Image style={styles.logo} source={'../assets/escudo_nsb.jpg'}/>
-   <View style={styles.loginButton}></View>  
-   <View style={styles.registerButton}></View>
- </ImageBackground>
+    <ScrollView>
+        <View style={{ justifyContent: 'center', flex: 1, alignItems: 'center' }}>
+            <Button onPress={() => setOpen(true)} uppercase={false} mode="outlined">
+        Pick single date
+        </Button>
+        <DatePickerModal
+        locale="en"
+        mode="single"
+        visible={open}
+        onDismiss={onDismissSingle}
+        date={date}
+        onConfirm={onConfirmSingle}
+      />
+      </View>
+      <MainContainer/>
+    </ScrollView>
  );
 }
-const styles = StyleSheet.create({
-    background: {
-        flex:1,
-        justifyContent:'flex-end',
-    },
-    loginButton: {
-        width: '100%',
-        height: 70,
-        backgroundColor: '#fc5c65',
-    },
-    logo: {
-        width: 220,
-        height: 220,
-        position: 'absolute',
-        top: 50,
-    },
-    registerButton: {
-        width: '100%',
-        height: 70,
-        backgroundColor: '#4ecdc4',
-    },
-});
+
 export default HomeScreen;
