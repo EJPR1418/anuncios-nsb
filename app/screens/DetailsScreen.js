@@ -1,6 +1,5 @@
 import React from "react";
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
 import { DatePickerModal } from 'react-native-paper-dates';
 import { TouchableOpacity, StyleSheet, View, ScrollView } from 'react-native';
 import {
@@ -15,7 +14,7 @@ import {
 } from 'react-native-paper';
 
 function DetailsScreen(props) {
-    const { title, content } = props?.route?.params;
+    // const { title, content } = props?.route?.params;
     return (
     <Card>
       <Card.Title title="Evento 1" variant="titleLarge"/>
