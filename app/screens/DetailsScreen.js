@@ -1,34 +1,60 @@
 import React from "react";
-import { NavigationContainer } from '@react-navigation/native';
-import { DatePickerModal } from 'react-native-paper-dates';
-import { TouchableOpacity, StyleSheet, View, ScrollView } from 'react-native';
-import {
-  Card,
-  Title,
-  Text,
-  Button,
-  Paragraph,
-  Avatar,
-  List,
-  PaperProvider,
-} from 'react-native-paper';
+import { ScrollView } from "react-native";
+import { Card, Text, DataTable } from "react-native-paper";
 
-function DetailsScreen(props) {
-    // const { title, content } = props?.route?.params;
-    return (
-    <Card>
-      <Card.Title title="Evento 1" variant="titleLarge"/>
-      <Card.Cover source={{ uri: 'https://picsum.photos/700' }} />
-      <Card.Content>
-        <Text variant="titleLarge" title="Card Title"></Text>
-        <Text variant="bodyMedium">Card content</Text>
-      </Card.Content>
-    </Card>
-      // <List.Section>
-      //   <List.Subheader>Title</List.Subheader>
-      //   <List.Item />
-      // </List.Section>
-    );
-  };
+function DetailsScreen() {
+  // const { title, content } = props?.route?.params;
+  return (
+    <ScrollView>
+      <Card>
+        <Card.Title title="Bazar Anual" variant="titleLarge" />
+        <Card.Cover source={{ uri: "https://picsum.photos/700" }} />
+        <Card.Content>
+          <DataTable.Row>
+            <DataTable.Cell>
+              <Text variant="bodyMedium">Detalles:</Text>
+            </DataTable.Cell>
+            <DataTable.Cell>
+              <Text variant="bodyMedium">
+                adsfhjashfdkjsdfhjaksdfhakjsdfhkjasdfhka
+              </Text>
+            </DataTable.Cell>
+          </DataTable.Row>
+          <DataTable.Row>
+            <DataTable.Cell>1</DataTable.Cell>
+            <DataTable.Cell>2</DataTable.Cell>
+          </DataTable.Row>
+          <DataTable.Row>
+            <DataTable.Cell>1</DataTable.Cell>
+            <DataTable.Cell>2</DataTable.Cell>
+          </DataTable.Row>
+          <DataTable.Row>
+            <DataTable.Cell>1</DataTable.Cell>
+            <DataTable.Cell>2</DataTable.Cell>
+          </DataTable.Row>
+          <DataTable.Row>
+            <DataTable.Cell>1</DataTable.Cell>
+            <DataTable.Cell>2</DataTable.Cell>
+          </DataTable.Row>
+          <DataTable.Row>
+            <DataTable.Cell>1</DataTable.Cell>
+            <DataTable.Cell>2</DataTable.Cell>
+          </DataTable.Row>
+          <Text variant="bodyMedium">Detalles:</Text>
+          <Text variant="bodyMedium">Tipo:</Text>
+          <Text variant="bodyMedium">Fecha de Evento:</Text>
+          <Text variant="bodyMedium">Hora de Evento:</Text>
+          <Text variant="bodyMedium">Tipo de Vestimenta:</Text>
+          <Text variant="bodyMedium">Localidad:</Text>
+        </Card.Content>
+      </Card>
+    </ScrollView>
+
+    // <List.Section>
+    //   <List.Subheader>Title</List.Subheader>
+    //   <List.Item />
+    // </List.Section>
+  );
+}
 
 export default DetailsScreen;

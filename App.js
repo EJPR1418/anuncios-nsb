@@ -1,40 +1,26 @@
 import React from "react";
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { NavigationContainer } from '@react-navigation/native';
-import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
-import HomeScreen from './app/screens/HomeScreen';
-import DetailsScreen from './app/screens/DetailsScreen';
-import SettingsScreen from "./app/screens/SettingsScreen";
+import {
+  PaperProvider,
+  MD3LightTheme as DefaultTheme,
+} from "react-native-paper";
 
-const Stack = createNativeStackNavigator();
-const Tab = createMaterialBottomTabNavigator();
+import MainScreen from "./app/screens/MainScreen";
 
-function StackNavigator() {
- return(
-    <Stack.Navigator>
-      <Stack.Screen name="Inicio" component={HomeScreen} options={{title: 'Eventos'}}/>
-      <Stack.Screen name="Detalles" component={DetailsScreen} options={{title: 'Detalles de Evento'}}/>
-      {/* <Stack.Screen name="Profile" component={Profile} />
-      <Stack.Screen name="Settings" component={Settings} /> */}
-    </Stack.Navigator>
- );
-}
-
-function TabNavigator() {
-  return(
-    <Tab.Navigator>
-      <Tab.Screen name="Inicio" component={StackNavigator} />
-      <Tab.Screen name="Ajustes" component={SettingsScreen} />
-    </Tab.Navigator>
-  );
-}
+const theme = {
+  ...DefaultTheme,
+  // Specify custom property
+  myOwnProperty: true,
+  // Specify custom property in nested object
+  colors: {
+    ...DefaultTheme.colors,
+    myOwnColor: "blue",
+  },
+};
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <TabNavigator/>
-    </NavigationContainer>
-
+    <PaperProvider theme={{ theme }}>
+      <MainScreen />
+    </PaperProvider>
   );
 }
-

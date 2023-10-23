@@ -1,19 +1,33 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Text } from 'react-native-paper';
+import * as React from 'react';
+import { StyleSheet, SafeAreaView } from 'react-native';
+import { List } from 'react-native-paper';
 
-function SettingsScreen({ navigation }) {
+function SettingsScreen() {
     return (
-      <View style={styles.container}>
-        <Text variant="headlineMedium">Settings!</Text>
-      </View>
+        <SafeAreaView style={styles.container}>
+          <List.Item
+          title="Cuenta"
+          left={props => <List.Icon {...props} icon="folder" />}
+          onPress={{}}/>
+          <List.Item
+          title="Reportes"
+          left={props => <List.Icon {...props} icon="folder" />}
+          onPress={{}}/>
+           <List.Item
+          title="Reportes"
+          left={props => <List.Icon {...props} icon="folder" />}
+          onPress={{}}/>
+          <List.Item
+          title="Logout"
+          left={props => <List.Icon {...props} icon="folder" />}
+          onPress={{}}/>
+        </SafeAreaView>
     );
   }
 
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      justifyContent: 'center',
       alignItems: 'center',
     },
   });
