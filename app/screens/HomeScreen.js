@@ -11,7 +11,7 @@ function HomeScreen({ navigation }) {
     <ScrollView>
       <View style={styles.container}>
         <TouchableOpacity onPress={() => navigation.navigate("Detalles")}>
-          <Card>
+          <Card style={styles.card}>
             {/* <Card.Content>
             <Text variant="titleLarge" title="Card Title"></Text>
             <Text variant="bodyMedium">Card content</Text>
@@ -46,6 +46,9 @@ const styles = StyleSheet.create({
   },
   background: {
     backgroundColor: "white",
+  },
+  card: {
+    margin: 5,
   },
 });
 
