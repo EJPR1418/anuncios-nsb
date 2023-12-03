@@ -1,105 +1,99 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Pressable, Platform } from 'react-native';
-import { Text, TextInput, TouchableOpacity } from 'react-native-paper';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { View, Platform, StyleSheet } from 'react-native';
+import { TextInput, IconButton } from 'react-native-paper';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import PropTypes from 'prop-types';
 
-function CalendarInputComponent() {
+function CalendarInputComponent({
+  mode,
+  value,
+  onDateChange,
+  label,
+  editable,
+}) {
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [date, setDate] = useState(new Date());
-  const [showPicker, setShowPicker] = useState(false);
-  const [startDate, setStartDate] = React.useState('');
 
-  let isEditable = false;
-
-  const toggleDatePicker = () => {
-    setShowPicker(!showPicker);
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setDatePickerVisibility(Platform.OS === 'ios'); // Hide the picker on iOS immediately
+    setDate(currentDate);
+    onDateChange(currentDate);
+  };
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
   };
 
-  const onChange = ({ type }, selectedDate) => {
-    if (type == 'set') {
-      const currentDate = selectedDate;
-      setDate(currentDate);
-      if (Platform.OS === 'android') {
-        toggleDatePicker();
-        setStartDate(currentDate.toLocaleDateString('en-US'));
-      }
-    } else {
-      toggleDatePicker();
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirm = (date) => {
+    hideDatePicker();
+
+    if (date) {
+      onDateChange(date);
     }
   };
+  const formattedValue = value
+    ? mode === 'time'
+      ? value.toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: 'numeric',
+          hour12: true,
+        })
+      : value.toLocaleDateString('en-US')
+    : '';
 
-  const confirmIOSDate = () => {
-    setDate(date.toDateString());
-    toggleDatePicker();
-  };
+  const _icon = mode == 'date' ? 'calendar' : 'calendar-clock';
   return (
     <View>
-      {showPicker && (
-        <DateTimePicker
-          mode='date'
-          display='spinner'
-          value={date}
+      <View style={{ flexDirection: 'row' }}>
+        <View style={{ flex: 2 }}>
+          <TextInput
+            label={label}
+            mode='outlined'
+            value={formattedValue}
+            editable={false}
+          />
+        </View>
+        <View style={{ flex: 1, alignItems: 'center' }}>
+          <IconButton
+            icon={_icon}
+            size={30}
+            style={{
+              backgroundColor: '#ADD8E6',
+              borderRadius: 10,
+            }}
+            onPress={showDatePicker}
+          />
+        </View>
+      </View>
+      {isDatePickerVisible && (
+        <DateTimePickerModal
+          isVisible={isDatePickerVisible}
+          mode={mode}
+          onConfirm={handleConfirm}
+          onCancel={hideDatePicker}
           onChange={onChange}
         />
-      )}
-      {showPicker && Platform.OS === 'ios' && (
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-around',
-          }}
-        >
-          <TouchableOpacity style={{}} onPress={toggleDatePicker}>
-            <Text style={styles.buttonText}>Cancelar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={{}} onPress={confirmIOSDate}>
-            <Text style={styles.buttonText}>OK</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {!showPicker && (
-        <Pressable onPress={toggleDatePicker} disabled={!isEditable}>
-          <TextInput
-            mode='outlined'
-            variant='bodyMedium'
-            style={styles.textInput}
-            placeholder='Fecha'
-            value={startDate}
-            onChangeText={setStartDate}
-            editable={false}
-            onPressIn={toggleDatePicker}
-          ></TextInput>
-        </Pressable>
       )}
     </View>
   );
 }
 
+CalendarInputComponent.propTypes = {
+  mode: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired, // Value should be a Date object
+  onDateChange: PropTypes.func.isRequired, // Callback function for date change
+  label: PropTypes.string.isRequired, // Label for the input
+  editable: PropTypes.bool,
+};
+
 const styles = StyleSheet.create({
-  mainContainer: {
-    paddingTop: 20,
-  },
-  container: {
-    paddingTop: 10,
-  },
-  rowContainer: {
+  searchSection: {
+    flex: 1,
     flexDirection: 'row',
-    paddingTop: 10,
-  },
-  flexContainer: {
-    justifyContent: 'flex-end',
-  },
-  background: {
-    backgroundColor: 'white',
-  },
-  buttonText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#fff',
-  },
-  textInput: {
-    flex: 1, // Distribute available space equally among children
-    margin: 5,
   },
 });
 

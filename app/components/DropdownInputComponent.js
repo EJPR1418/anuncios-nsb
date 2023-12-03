@@ -3,10 +3,18 @@ import { View, StyleSheet } from 'react-native';
 import { TextInput, Modal, List, Portal, Surface } from 'react-native-paper';
 import PropTypes from 'prop-types';
 
-function DropdownInputComponent({ label, items, selectedValue, onSelect }) {
+function DropdownInputComponent({
+  label,
+  items,
+  selectedValue,
+  onSelect,
+  isEditing,
+}) {
   const [visible, setVisible] = useState(false);
 
-  const showMenu = () => setVisible(true);
+  const showMenu = () => {
+    setVisible(true);
+  };
   const hideMenu = () => setVisible(false);
 
   const handleMenuItemPress = (item) => {
@@ -21,6 +29,7 @@ function DropdownInputComponent({ label, items, selectedValue, onSelect }) {
         value={selectedValue}
         mode='outlined'
         onFocus={showMenu}
+        editable={isEditing}
       />
       <Portal>
         <Modal
@@ -50,6 +59,7 @@ DropdownInputComponent.propTypes = {
   items: PropTypes.array.isRequired,
   selectedValue: PropTypes.string.isRequired,
   onSelect: PropTypes.func.isRequired,
+  isEditing: PropTypes.bool,
 };
 
 const styles = StyleSheet.create({

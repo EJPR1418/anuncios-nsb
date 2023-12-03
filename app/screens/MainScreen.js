@@ -1,11 +1,12 @@
-import React from "react";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { NavigationContainer } from "@react-navigation/native";
-import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import HomeScreen from "./HomeScreen";
-import DetailsScreen from "./DetailsScreen";
-import SettingsScreen from "./SettingsScreen";
+import React from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NavigationContainer } from '@react-navigation/native';
+import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import HomeScreen from './HomeScreen';
+import DetailsScreen from './DetailsScreen';
+import SettingsScreen from './SettingsScreen';
+import MapComponent from '../components/MapComponent';
 
 const Stack = createNativeStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
@@ -14,14 +15,19 @@ function StackNavigator() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="Inicio"
+        name='Inicio'
         component={HomeScreen}
-        options={{ title: "Eventos" }}
+        options={{ title: 'Eventos' }}
       />
       <Stack.Screen
-        name="Detalles"
+        name='Detalles'
         component={DetailsScreen}
-        options={{ title: "Detalles de Evento" }}
+        options={{ title: 'Detalles de Evento' }}
+      />
+      <Stack.Screen
+        name='Mapa'
+        component={MapComponent}
+        options={{ title: 'Mapa' }}
       />
       {/* <Stack.Screen name='Ajustes' component={SettingsScreen} options={{title: 'Ajustes'}}/> */}
 
@@ -35,23 +41,23 @@ function TabNavigator() {
   return (
     <Tab.Navigator>
       <Tab.Screen
-        name="Inicio"
+        name='Inicio'
         component={StackNavigator}
         options={{
-          tabBarLabel: "Inicio",
+          tabBarLabel: 'Inicio',
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="home" color={color} size={26} />
+            <MaterialCommunityIcons name='home' color={color} size={26} />
           ),
         }}
       />
       <Tab.Screen
-        name="Ajustes"
+        name='Ajustes'
         component={SettingsScreen}
         options={{
-          tabBarLabel: "Ajustes",
+          tabBarLabel: 'Ajustes',
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons
-              name="account-settings"
+              name='account-settings'
               color={color}
               size={26}
             />
