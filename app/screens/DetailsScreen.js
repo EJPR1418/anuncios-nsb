@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Card, TextInput, Text, IconButton, Button } from 'react-native-paper';
 import MapView, { Marker } from 'react-native-maps';
+import { useRoute } from '@react-navigation/native';
 import { Formik } from 'formik';
 import axios from 'axios';
 
@@ -15,9 +16,7 @@ import CalendarInputComponent from '../components/CalendarInputComponent';
 import DropDown from 'react-native-paper-dropdown';
 
 function DetailsScreen({ navigation }) {
-  const [mapUrl, setMapUrl] = useState(
-    'https://maps.app.goo.gl/mEEeAsCuxG6MX9rRA'
-  );
+  const [mapUrl, setMapUrl] = useState(); //https://maps.app.goo.gl/mEEeAsCuxG6MX9rRA
 
   const [mapRegion, setMapRegion] = useState(null);
   const initialRegion = {
@@ -26,6 +25,9 @@ function DetailsScreen({ navigation }) {
     longitude: -66.55138915345485,
     longitudeDelta: 2.9817361344754687,
   };
+
+  const route = useRoute();
+  const selectedLocation = route.params?.selectedLocation;
 
   const [isEditing, setIsEditing] = useState(true);
 
@@ -49,77 +51,77 @@ function DetailsScreen({ navigation }) {
     { label: 'Capitulo Omicron', value: '3' },
   ];
   const mapRef = useRef();
-  const extractCoordinatesFromGoogleMapsURL = async (url) => {
-    // Validate url is from google
-    const googleMapsShortURLPattern =
-      /^https:\/\/maps\.app\.goo\.gl\/[A-Za-z0-9]+$/;
-    if (!googleMapsShortURLPattern.test(url)) {
-      alert('URL no es de Google.');
-      return;
-    }
+  const handleSelectedLocation = async () => {
     try {
+      console.log(mapUrl);
       // Fetch the Google Maps link
-      const response = await axios.get(url);
+      const response = await axios.get(mapUrl);
       // console.log(response);
 
       const { responseURL } = response.request;
       console.log(responseURL);
-      if (responseURL) {
-        const match = responseURL.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
 
-        if (match && match.length === 3) {
+      // const googlesAPI_KEY = 'AIzaSyBHaA-533YgKO6n88yFYm6bVKWMLGIJdxk';
+      // const placeResponse = await axios.get(
+      //   `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(
+      //     mapUrl
+      //   )}&key=${googlesAPI_KEY}`
+      // );
+      // const { result } = placeResponse.data;
+
+      // console.log(result);
+
+      if (responseURL) {
+        // let placeIdMatch = responseURL.match(/placeid=([^&]+)/);
+        // let placeId;
+
+        // if (placeIdMatch && placeIdMatch.length >= 2) {
+        //   placeId = placeIdMatch[1];
+        // }
+        // console.log(placeId);
+        // // if (!placeId) {
+        // //   Alert.alert('Invalid Google Maps link', 'Please enter a valid Google Maps link.');
+        // //   return;
+        // // }
+
+        // const googlesAPI_KEY = 'AIzaSyBHaA-533YgKO6n88yFYm6bVKWMLGIJdxk';
+        // // Make a request to the Google Places API
+        // const placeResponse = await axios.get(
+        //   `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${googlesAPI_KEY}`
+        // );
+
+        // const { result } = placeResponse.data;
+
+        // console.log(result);
+
+        const latLngRegex = /!3d(-?\d+(\.\d+)?)!4d(-?\d+(\.\d+)?)/;
+        const match = responseURL.match(latLngRegex);
+        console.log(match);
+        if (match) {
           setMapRegion({
             latitude: parseFloat(match[1]),
-            // latitudeDelta: 0.0922,
-            longitude: parseFloat(match[2]),
-            // longitudeDelta: 0.0421,
+            latitudeDelta: 0.01,
+            longitude: parseFloat(match[3]),
+            longitudeDelta: 0.01,
           });
 
           mapRef.current?.animateToRegion({
             latitude: parseFloat(match[1]),
             latitudeDelta: 0.01,
-            longitude: parseFloat(match[2]),
+            longitude: parseFloat(match[3]),
             longitudeDelta: 0.01,
           });
         } else {
           return null;
         }
-      } else {
-        throw new Error('Localizacion no encontrada en Google Maps link.');
       }
     } catch (error) {
       console.error('Error:', error.message);
       return null;
     }
   };
-  const handleSelectedLocation = () => {
-    extractCoordinatesFromGoogleMapsURL(mapUrl);
-  };
 
   const handleSubmit = () => {
-    // const event = new Event();
-    // event.title = title;
-    // event.description = description;
-    // event.type = selectedItemType;
-    // event.clothing = selectedItemClothing;
-    // event.fraternities = selectedItemFraternityValues;
-    // event.cost = cost;
-    // event.startDate = selectedStartDate;
-    // event.startTime = selectedStartTime;
-    // event.endDate = selectedEndDate;
-    // event.endTime = selectedEndTime;
-    // event.imageSource = image;
-    // if (isEditing) {
-    //   event.editedBy = '';
-    //   event.editedDate = new Date();
-    // } else {
-    //   event.createdBy = '';
-    //   event.createdDate = new Date();
-    // }
-    // console.log(event);
-    // //Call post api to db
-    // //Add async success button
-    // // if true, go back, else stay
     const popAction = StackActions.pop(1);
 
     navigation.dispatch(popAction);
@@ -127,8 +129,8 @@ function DetailsScreen({ navigation }) {
     // Handle form submission, e.g., send data to the server
   };
 
-  // const [image, setImage] = useState(require('../assets/escudo_nsb.jpg')); //https://picsum.photos/700
-
+  const [image, setImage] = useState(require('../assets/escudo_nsb.jpg')); //https://picsum.photos/700
+  const [imageUri, setImageUri] = useState('');
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -142,18 +144,15 @@ function DetailsScreen({ navigation }) {
 
     if (!result.canceled) {
       const { uri } = result.assets[0];
-      console.log(uri);
-      return uri;
-      //setImage({ uri: result.assets[0].uri }); //Change to uri when select photo
+      // console.log(uri);
+      setImageUri(uri);
+      setImage({ uri: result.assets[0].uri }); //Change to uri when select photo
     }
   };
 
   return (
     <Formik
       initialValues={{
-        useLocalImage: true,
-        selectedImage: null,
-        image: '',
         title: '',
         description: '',
         type: '',
@@ -164,9 +163,13 @@ function DetailsScreen({ navigation }) {
         startTime: '',
         endDate: '',
         endTime: '',
+        mapUrl: '',
       }}
       onSubmit={(values) => {
-        console.log(values);
+        const valuesToSend = { ...values, imageUri, mapRegion };
+        // Validate mapURL
+        // Handle image upload
+        console.log(valuesToSend);
       }}
     >
       {(formikProps) => (
@@ -175,11 +178,7 @@ function DetailsScreen({ navigation }) {
             <Card style={styles.card}>
               <View>
                 <Card.Cover
-                  source={
-                    !formikProps.values.selectedImage
-                      ? require('../assets/escudo_nsb.jpg')
-                      : { uri: formikProps.values.selectedImage }
-                  }
+                  source={image}
                   style={styles.cardImage}
                   resizeMode='contain'
                 />
@@ -189,8 +188,9 @@ function DetailsScreen({ navigation }) {
                     iconColor='white'
                     size={24}
                     onPress={() => {
+                      pickImage();
                       // const _selectedImage = pickImage();
-                      formikProps.setFieldValue('selectedImage', pickImage());
+                      //formikProps.setFieldValue('selectedImage', pickImage());
                     }}
                   />
                 </View>
@@ -324,13 +324,18 @@ function DetailsScreen({ navigation }) {
                   <Text variant='labelMedium'>Localidad:</Text>
                   <View style={styles.rowContainer}>
                     <View style={(styles.container, { flex: 5 })}>
-                      <TextInput
-                        label='Direccion'
-                        multiline={true}
-                        mode='outlined'
-                        value={mapUrl}
-                        onChangeText={(url) => setMapUrl(url)}
-                      />
+                      {selectedLocation && (
+                        <TextInput
+                          label='Direccion'
+                          multiline={true}
+                          mode='outlined'
+                          value={selectedLocation.name}
+                          onChangeText={(url) => {
+                            setMapUrl(url);
+                            formikProps.setFieldValue('mapUrl', url);
+                          }}
+                        />
+                      )}
                     </View>
                     <View
                       style={{ flex: 1, justifyContent: 'center', padding: 1 }}
@@ -342,22 +347,30 @@ function DetailsScreen({ navigation }) {
                           backgroundColor: '#ADD8E6',
                           borderRadius: 10,
                         }}
-                        onPress={handleSelectedLocation}
+                        onPress={
+                          () => navigation.navigate('Mapa')
+                          //handleSelectedLocation
+                        }
                       />
                     </View>
                   </View>
-                  <View style={styles.mapContainer}>
-                    <MapView
-                      provider='google'
-                      style={styles.map}
-                      initialRegion={initialRegion}
-                      ref={mapRef}
-                    >
-                      {mapRegion && (
-                        <Marker coordinate={mapRegion} title='AQUII' />
-                      )}
-                    </MapView>
-                  </View>
+                  {selectedLocation && (
+                    <View style={styles.mapContainer}>
+                      <MapView
+                        provider='google'
+                        style={styles.map}
+                        initialRegion={selectedLocation.coordinates}
+                        ref={mapRef}
+                      >
+                        {selectedLocation && (
+                          <Marker
+                            coordinate={selectedLocation.coordinates}
+                            title='Ave Frate!'
+                          />
+                        )}
+                      </MapView>
+                    </View>
+                  )}
                 </View>
                 <View style={{ padding: 30 }}>
                   <Button
@@ -394,6 +407,7 @@ const styles = StyleSheet.create({
     height: 200,
   },
   map: {
+    borderRadius: 20,
     width: '100%',
     height: '100%',
   },
