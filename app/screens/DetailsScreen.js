@@ -1,39 +1,31 @@
 import React, { useState, useRef } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Card, TextInput, Text, IconButton, Button } from 'react-native-paper';
+// import { Card, TextInput, Text, IconButton, Button } from 'react-native-paper';
+import { Card, Input, Text, Button, Icon, Divider } from '@rneui/themed';
+
 import MapView, { Marker } from 'react-native-maps';
 import { useRoute } from '@react-navigation/native';
 import { Formik } from 'formik';
-import axios from 'axios';
+// import axios from 'axios';
+import * as yup from 'yup';
 
 import PropTypes from 'prop-types';
 import * as ImagePicker from 'expo-image-picker';
-// import { View, TextField, Text, Button } from 'react-native-ui-lib';
 import { StackActions } from '@react-navigation/native';
-
+import MultipleDropdownComponent from '../components/MultipleDropdownComp';
+import DropdownComponent from '../components/DropdownComponent';
+import CurrencyInput from '../components/CurrencyInputComponent';
 // Import your custom components
 import CalendarInputComponent from '../components/CalendarInputComponent';
-import DropDown from 'react-native-paper-dropdown';
+// import DropDown from 'react-native-paper-dropdown';
 
 function DetailsScreen({ navigation }) {
   const [mapUrl, setMapUrl] = useState(); //https://maps.app.goo.gl/mEEeAsCuxG6MX9rRA
-
-  const [mapRegion, setMapRegion] = useState(null);
-  const initialRegion = {
-    latitude: 18.33893085548665,
-    latitudeDelta: 3.0155829779597134,
-    longitude: -66.55138915345485,
-    longitudeDelta: 2.9817361344754687,
-  };
 
   const route = useRoute();
   const selectedLocation = route.params?.selectedLocation;
 
   const [isEditing, setIsEditing] = useState(true);
-
-  const [showClothingDropDown, setShowClothingDropDown] = useState(false);
-  const [showTypeDropDown, setShowTypeDropDown] = useState(false);
-  const [showMultiSelectDropDown, setShowMultiSelectDropDown] = useState(false);
 
   const typeFraterno = [
     { label: 'Miembro', value: '1' },
@@ -41,8 +33,8 @@ function DetailsScreen({ navigation }) {
   ];
   const clothingStyle = [
     { label: 'Casual', value: '1' },
-    { label: 'Casual Elegante', value: '2' },
-    { label: 'Semi Formal', value: '3' },
+    { label: 'Casual-Elegante', value: '2' },
+    { label: 'Semi-Formal', value: '3' },
     { label: 'Formal', value: '4' },
   ];
   const fraternityList = [
@@ -51,75 +43,6 @@ function DetailsScreen({ navigation }) {
     { label: 'Capitulo Omicron', value: '3' },
   ];
   const mapRef = useRef();
-  const handleSelectedLocation = async () => {
-    try {
-      console.log(mapUrl);
-      // Fetch the Google Maps link
-      const response = await axios.get(mapUrl);
-      // console.log(response);
-
-      const { responseURL } = response.request;
-      console.log(responseURL);
-
-      // const googlesAPI_KEY = 'AIzaSyBHaA-533YgKO6n88yFYm6bVKWMLGIJdxk';
-      // const placeResponse = await axios.get(
-      //   `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(
-      //     mapUrl
-      //   )}&key=${googlesAPI_KEY}`
-      // );
-      // const { result } = placeResponse.data;
-
-      // console.log(result);
-
-      if (responseURL) {
-        // let placeIdMatch = responseURL.match(/placeid=([^&]+)/);
-        // let placeId;
-
-        // if (placeIdMatch && placeIdMatch.length >= 2) {
-        //   placeId = placeIdMatch[1];
-        // }
-        // console.log(placeId);
-        // // if (!placeId) {
-        // //   Alert.alert('Invalid Google Maps link', 'Please enter a valid Google Maps link.');
-        // //   return;
-        // // }
-
-        // const googlesAPI_KEY = 'AIzaSyBHaA-533YgKO6n88yFYm6bVKWMLGIJdxk';
-        // // Make a request to the Google Places API
-        // const placeResponse = await axios.get(
-        //   `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${googlesAPI_KEY}`
-        // );
-
-        // const { result } = placeResponse.data;
-
-        // console.log(result);
-
-        const latLngRegex = /!3d(-?\d+(\.\d+)?)!4d(-?\d+(\.\d+)?)/;
-        const match = responseURL.match(latLngRegex);
-        console.log(match);
-        if (match) {
-          setMapRegion({
-            latitude: parseFloat(match[1]),
-            latitudeDelta: 0.01,
-            longitude: parseFloat(match[3]),
-            longitudeDelta: 0.01,
-          });
-
-          mapRef.current?.animateToRegion({
-            latitude: parseFloat(match[1]),
-            latitudeDelta: 0.01,
-            longitude: parseFloat(match[3]),
-            longitudeDelta: 0.01,
-          });
-        } else {
-          return null;
-        }
-      }
-    } catch (error) {
-      console.error('Error:', error.message);
-      return null;
-    }
-  };
 
   const handleSubmit = () => {
     const popAction = StackActions.pop(1);
@@ -150,6 +73,48 @@ function DetailsScreen({ navigation }) {
     }
   };
 
+  const onSubmit = async (values, actions) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000)); //Change when calling post
+    actions.resetForm;
+    const postValues = { ...values, imageUri, selectedLocation };
+    console.log(postValues);
+  };
+
+  const detailsSchema = yup.object().shape({
+    title: yup
+      .string()
+      .min(2, 'Muy Corto!')
+      .max(30, 'Muy Largo!')
+      .required('Requerido'),
+    description: yup
+      .string()
+      .min(5, 'Muy Corto!')
+      .max(100, 'Muy Largo!')
+      .required('Requerido'),
+    type: yup
+      .string()
+      // .min(1, 'Seleccione el tipo de evento')
+      .required('Requerido'),
+    clothing: yup
+      .string()
+      // .min(1, 'Seleccione codigo de vestimenta')
+      .required('Requerido'),
+    organizers: yup
+      .array()
+      .min(1, 'Seleccione al menos un organizador')
+      .required('Requerido'),
+    cost: yup
+      .number()
+      .required('Requerido')
+      .min(1000, 'minimal Rp 1.000')
+      .positive('No numeros negativos'),
+    startDate: yup.string().required('Requerido'),
+    startTime: yup.string().required('Requerido'),
+    endDate: yup.string().required('Requerido'),
+    endTime: yup.string().required('Requerido'),
+    mapUrl: yup.string().required('Requerido'),
+  });
+
   return (
     <Formik
       initialValues={{
@@ -157,7 +122,7 @@ function DetailsScreen({ navigation }) {
         description: '',
         type: '',
         clothing: '',
-        organizers: '',
+        organizers: [],
         cost: '',
         startDate: '',
         startTime: '',
@@ -165,221 +130,249 @@ function DetailsScreen({ navigation }) {
         endTime: '',
         mapUrl: '',
       }}
-      onSubmit={(values) => {
-        const valuesToSend = { ...values, imageUri, mapRegion };
-        // Validate mapURL
-        // Handle image upload
-        console.log(valuesToSend);
-      }}
+      validationSchema={detailsSchema}
+      onSubmit={onSubmit}
     >
-      {(formikProps) => (
+      {({
+        values,
+        errors,
+        touched,
+        handleBlur,
+        handleChange,
+        handleSubmit,
+        setFieldValue,
+      }) => (
         <ScrollView>
           <View style={styles.mainContainer}>
-            <Card style={styles.card}>
+            <Card containerStyle={styles.card}>
               <View>
-                <Card.Cover
+                <Card.Image
                   source={image}
                   style={styles.cardImage}
-                  resizeMode='contain'
+                  resizeMode='cover'
                 />
                 <View style={styles.editButtonContainer}>
-                  <IconButton
-                    icon='pencil' // Replace with your desired edit icon (e.g., 'pencil', 'pencil-outline')
-                    iconColor='white'
-                    size={24}
-                    onPress={() => {
-                      pickImage();
-                      // const _selectedImage = pickImage();
-                      //formikProps.setFieldValue('selectedImage', pickImage());
-                    }}
+                  <Icon
+                    name='edit'
+                    type='material'
+                    color='black'
+                    size={30}
+                    solid
+                    onPress={() => pickImage()}
                   />
                 </View>
               </View>
-              <Card.Content>
-                <View style={styles.container}>
-                  <TextInput
-                    mode='outlined'
-                    label='Titulo'
-                    style={styles.input}
-                    value={formikProps.values.title}
-                    onChangeText={formikProps.handleChange('title')}
-                    editable={isEditing}
+              <Card.Divider />
+              <View style={styles.container}>
+                <Input
+                  label='Titulo'
+                  value={values.title}
+                  onChangeText={handleChange('title')}
+                  editable={isEditing}
+                  onBlur={handleBlur('title')}
+                />
+                {errors.title && touched.title && (
+                  <Text style={styles.errorText}>{errors.title}</Text>
+                )}
+              </View>
+              <View style={styles.container}>
+                <Input
+                  label='Descripcion'
+                  multiline={true}
+                  value={values.description}
+                  onChangeText={handleChange('description')}
+                  editable={isEditing}
+                  onBlur={handleBlur('description')}
+                />
+                {errors.description && touched.description && (
+                  <Text style={styles.errorText}>{errors.description}</Text>
+                )}
+              </View>
+              <View style={styles.rowContainer}>
+                <View style={styles.dropdownInputContainer}>
+                  <DropdownComponent
+                    data={typeFraterno}
+                    onSelect={(tipo) => {
+                      setFieldValue('type', tipo);
+                    }}
+                    placeholder='Tipo'
                   />
-                </View>
-                <View style={styles.container}>
-                  <TextInput
-                    mode='outlined'
-                    multiline={true}
-                    label='Descripcion'
-                    variant='bodyMedium'
-                    style={styles.input}
-                    value={formikProps.values.description}
-                    onChangeText={formikProps.handleChange('description')}
-                    editable={isEditing}
-                  />
-                </View>
-                <View style={styles.rowContainer}>
-                  <View style={styles.dropdownInputContainer}>
-                    <DropDown
-                      label={'Tipo'}
-                      mode={'outlined'}
-                      visible={showTypeDropDown}
-                      showDropDown={() => setShowTypeDropDown(true)}
-                      onDismiss={() => setShowTypeDropDown(false)}
-                      value={formikProps.values.type}
-                      setValue={formikProps.handleChange('type')}
-                      list={typeFraterno}
-                    />
-                  </View>
-                  <View style={styles.dropdownInputContainer}>
-                    <DropDown
-                      label={'Vestimenta'}
-                      mode={'outlined'}
-                      visible={showClothingDropDown}
-                      showDropDown={() => setShowClothingDropDown(true)}
-                      onDismiss={() => setShowClothingDropDown(false)}
-                      value={formikProps.values.clothing}
-                      setValue={formikProps.handleChange('clothing')}
-                      list={clothingStyle}
-                    />
-                  </View>
-                </View>
-                <View style={styles.container}>
-                  <DropDown
-                    label={'Organizador por...'}
-                    mode={'outlined'}
-                    visible={showMultiSelectDropDown}
-                    showDropDown={() => setShowMultiSelectDropDown(true)}
-                    onDismiss={() => setShowMultiSelectDropDown(false)}
-                    value={formikProps.values.organizers}
-                    setValue={formikProps.handleChange('organizers')}
-                    list={fraternityList}
-                    multiSelect
-                  />
-                </View>
-                <View style={styles.container}>
-                  <TextInput
-                    label='Costo o Donativo'
-                    mode='outlined'
-                    value={formikProps.values.cost}
-                    onChangeText={formikProps.handleChange('cost')}
-                    keyboardType='numeric' // Ensure the keyboard shows numbers
-                  />
-                </View>
-                <View style={styles.container}>
-                  <Text variant='labelMedium'>Inicio:</Text>
-                  <View style={styles.rowContainer}>
-                    <View style={styles.calendarTimeContainer}>
-                      <CalendarInputComponent
-                        value={formikProps.values.startDate}
-                        onDateChange={(date) =>
-                          formikProps.setFieldValue('startDate', date)
-                        }
-                        label='Fecha'
-                        mode='date'
-                        editable={isEditing}
-                      />
-                    </View>
-                    <View style={styles.calendarTimeContainer}>
-                      <CalendarInputComponent
-                        value={formikProps.values.startTime}
-                        onDateChange={(date) =>
-                          formikProps.setFieldValue('startTime', date)
-                        }
-                        label='Hora'
-                        mode='time'
-                        editable={isEditing}
-                      />
-                    </View>
-                  </View>
-                </View>
-                <View style={styles.container}>
-                  <Text variant='labelMedium'>Culminacion:</Text>
-                  <View style={styles.rowContainer}>
-                    <View style={styles.calendarTimeContainer}>
-                      <CalendarInputComponent
-                        value={formikProps.values.endDate}
-                        onDateChange={(date) =>
-                          formikProps.setFieldValue('endDate', date)
-                        }
-                        label='Fecha'
-                        mode='date'
-                        editable={isEditing}
-                      />
-                    </View>
-                    <View style={styles.calendarTimeContainer}>
-                      <CalendarInputComponent
-                        value={formikProps.values.endTime}
-                        onDateChange={(date) =>
-                          formikProps.setFieldValue('endTime', date)
-                        }
-                        label='Hora'
-                        mode='time'
-                        editable={isEditing}
-                      />
-                    </View>
-                  </View>
-                </View>
-                <View style={styles.container}>
-                  <Text variant='labelMedium'>Localidad:</Text>
-                  <View style={styles.rowContainer}>
-                    <View style={(styles.container, { flex: 5 })}>
-                      {selectedLocation && (
-                        <TextInput
-                          label='Direccion'
-                          multiline={true}
-                          mode='outlined'
-                          value={selectedLocation.name}
-                          onChangeText={(url) => {
-                            setMapUrl(url);
-                            formikProps.setFieldValue('mapUrl', url);
-                          }}
-                        />
-                      )}
-                    </View>
-                    <View
-                      style={{ flex: 1, justifyContent: 'center', padding: 1 }}
-                    >
-                      <IconButton
-                        icon='map-search'
-                        size={30}
-                        style={{
-                          backgroundColor: '#ADD8E6',
-                          borderRadius: 10,
-                        }}
-                        onPress={
-                          () => navigation.navigate('Mapa')
-                          //handleSelectedLocation
-                        }
-                      />
-                    </View>
-                  </View>
-                  {selectedLocation && (
-                    <View style={styles.mapContainer}>
-                      <MapView
-                        provider='google'
-                        style={styles.map}
-                        initialRegion={selectedLocation.coordinates}
-                        ref={mapRef}
-                      >
-                        {selectedLocation && (
-                          <Marker
-                            coordinate={selectedLocation.coordinates}
-                            title='Ave Frate!'
-                          />
-                        )}
-                      </MapView>
-                    </View>
+                  {errors.type && (
+                    <Text style={styles.errorText}>{errors.type}</Text>
                   )}
                 </View>
-                <View style={{ padding: 30 }}>
-                  <Button
-                    title='Submit'
-                    style={{ backgroundColor: 'blue' }}
-                    onPress={formikProps.handleSubmit}
+                <View style={styles.dropdownInputContainer}>
+                  <DropdownComponent
+                    data={clothingStyle}
+                    onSelect={(clothing) => {
+                      setFieldValue('clothing', clothing);
+                    }}
+                    placeholder='Vestimenta'
                   />
+                  {errors.clothing && (
+                    <Text style={styles.errorText}>{errors.clothing}</Text>
+                  )}
                 </View>
-              </Card.Content>
+              </View>
+              <View style={styles.container}>
+                <MultipleDropdownComponent
+                  data={fraternityList}
+                  onSelect={(organizers) => {
+                    setFieldValue('organizers', organizers);
+                  }}
+                  placeholder='Organizado por...'
+                />
+                {errors.organizers && touched.organizers && (
+                  <Text style={styles.errorText}>{errors.organizers}</Text>
+                )}
+              </View>
+              <View style={styles.container}>
+                <Input
+                  label='Costo o Donativo'
+                  value={values.cost}
+                  onChangeText={handleChange('cost')}
+                  keyboardType='numeric'
+                  onBlur={handleBlur('cost')}
+                />
+                {errors.cost && touched.cost && (
+                  <Text style={styles.errorText}>{errors.cost}</Text>
+                )}
+                {/* <CurrencyInput
+                  label='Costo o Donativo'
+                  value={values.cost}
+                  onChangeText={(maskedText, rawText) => {
+                    setFieldValue('cost', rawText);
+                    console.log(rawText);
+                  }}
+                /> */}
+              </View>
+              <View style={styles.container}>
+                <View>
+                  <Text style={{ fontSize: 18, alignSelf: 'flex-start' }}>
+                    Fecha de Inicio
+                  </Text>
+                  {/* <Divider /> */}
+                </View>
+                <View style={styles.rowContainer}>
+                  <View style={styles.calendarTimeContainer}>
+                    <CalendarInputComponent
+                      value={values.startDate}
+                      onDateChange={(date) => setFieldValue('startDate', date)}
+                      label='Dia'
+                      mode='date'
+                      editable={isEditing}
+                    />
+                    {errors.startDate && touched.startDate && (
+                      <Text style={styles.errorText}>{errors.startDate}</Text>
+                    )}
+                  </View>
+                  <View style={styles.calendarTimeContainer}>
+                    <CalendarInputComponent
+                      value={values.startTime}
+                      onDateChange={(date) => setFieldValue('startTime', date)}
+                      label='Hora'
+                      mode='time'
+                      editable={isEditing}
+                    />
+                    {errors.startTime && touched.startTime && (
+                      <Text style={styles.errorText}>{errors.startTime}</Text>
+                    )}
+                  </View>
+                </View>
+              </View>
+              <View style={styles.container}>
+                <View>
+                  <Text style={{ fontSize: 18, alignSelf: 'flex-start' }}>
+                    Fecha de Culminacion
+                  </Text>
+                  {/* <Divider /> */}
+                </View>
+                <View style={styles.rowContainer}>
+                  <View style={styles.calendarTimeContainer}>
+                    <CalendarInputComponent
+                      value={values.endDate}
+                      onDateChange={(date) => setFieldValue('endDate', date)}
+                      label='Dia'
+                      mode='date'
+                      editable={isEditing}
+                    />
+                    {errors.endDate && touched.endDate && (
+                      <Text style={styles.errorText}>{errors.endDate}</Text>
+                    )}
+                  </View>
+                  <View style={styles.calendarTimeContainer}>
+                    <CalendarInputComponent
+                      value={values.endTime}
+                      onDateChange={(date) => setFieldValue('endTime', date)}
+                      label='Hora'
+                      mode='time'
+                      editable={isEditing}
+                    />
+                    {errors.endTime && touched.endTime && (
+                      <Text style={styles.errorText}>{errors.endTime}</Text>
+                    )}
+                  </View>
+                </View>
+              </View>
+              <View style={styles.container}>
+                <View style={styles.rowContainer}>
+                  <View style={(styles.container, { flex: 5 })}>
+                    <Input
+                      label='Localidad'
+                      multiline={true}
+                      value={selectedLocation ? selectedLocation.name : ''}
+                      onChangeText={(url) => {
+                        setMapUrl(url);
+                        setFieldValue('mapUrl', url);
+                      }}
+                      editable={false}
+                      rightIcon={
+                        <Icon
+                          name='map-search'
+                          type='material-community'
+                          size={30}
+                          onPress={() => navigation.navigate('Mapa')}
+                        />
+                      }
+                    />
+                    {errors.mapUrl && (
+                      <Text style={styles.errorText}>{errors.mapUrl}</Text>
+                    )}
+                  </View>
+                  {/* <View
+                    style={{ flex: 1, justifyContent: 'center', padding: 1 }}
+                  >
+                    <Icon
+                      name='map-search'
+                      type='material-community'
+                      size={30}
+                      onPress={() => navigation.navigate('Mapa')}
+                    />
+                  </View> */}
+                </View>
+                {selectedLocation && (
+                  <View style={styles.mapContainer}>
+                    <MapView
+                      provider='google'
+                      style={styles.map}
+                      initialRegion={selectedLocation.coordinates}
+                      ref={mapRef}
+                    >
+                      <Marker
+                        coordinate={selectedLocation.coordinates}
+                        title='Ave Frate!'
+                      />
+                    </MapView>
+                  </View>
+                )}
+              </View>
+              <View style={{ padding: 30 }}>
+                <Button
+                  title='Crear'
+                  buttonStyle={{ backgroundColor: 'blue' }}
+                  onPress={handleSubmit}
+                />
+              </View>
             </Card>
           </View>
         </ScrollView>
@@ -404,10 +397,10 @@ const styles = StyleSheet.create({
   mapContainer: {
     paddingTop: 10,
     flex: 1,
-    height: 200,
+    height: 150,
   },
   map: {
-    borderRadius: 20,
+    borderRadius: 10,
     width: '100%',
     height: '100%',
   },
@@ -429,6 +422,7 @@ const styles = StyleSheet.create({
   },
   card: {
     margin: 5,
+    borderRadius: 10,
   },
   cardImage: {
     width: '100%',
@@ -449,7 +443,6 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     top: 10, // Adjust the top position as needed
     right: 10, // Adjust the right position as needed
-    backgroundColor: 'black', // Make the background transparent
   },
   searchBarContainer: {
     backgroundColor: 'white',
@@ -458,6 +451,11 @@ const styles = StyleSheet.create({
   searchBarParentContainer: {
     zIndex: 1,
     padding: 10,
+  },
+  errorText: {
+    color: 'red',
+    paddingLeft: 10,
+    fontSize: 12,
   },
 });
 

@@ -15,7 +15,7 @@ import PropTypes from 'prop-types';
 //   { label: 'Item 8', value: '8' },
 // ];
 
-const MultiSelectComponent = ({ label, data, onSelect, isEditing }) => {
+const MultiSelectComponent = ({ placeholder, data, onSelect, isEditing }) => {
   const [selected, setSelected] = useState([]);
 
   const renderItem = (item) => {
@@ -38,38 +38,31 @@ const MultiSelectComponent = ({ label, data, onSelect, isEditing }) => {
         data={data}
         labelField='label'
         valueField='value'
-        placeholder={label}
+        placeholder={placeholder}
         value={selected}
         search
-        searchPlaceholder={label}
+        searchPlaceholder='Buscar'
         onChange={(item) => {
           setSelected(item);
           onSelect(item);
         }}
-        renderLeftIcon={() => (
-          <AntDesign
-            style={styles.icon}
-            color='black'
-            name='Safety'
-            size={20}
-          />
-        )}
-        renderItem={renderItem}
-        renderSelectedItem={(item, unSelect) => (
-          <TouchableOpacity onPress={() => unSelect && unSelect(item)}>
-            <View style={styles.selectedStyle}>
-              <Text style={styles.textSelectedStyle}>{item.label}</Text>
-              <AntDesign color='black' name='delete' size={17} />
-            </View>
-          </TouchableOpacity>
-        )}
+        selectedStyle={styles.selectedStyle}
+
+        // renderLeftIcon={() => (
+        //   <AntDesign
+        //     style={styles.icon}
+        //     color='black'
+        //     name='Safety'
+        //     size={20}
+        //   />
+        // )}
       />
     </View>
   );
 };
 
 MultiSelectComponent.propTypes = {
-  label: PropTypes.string.isRequired,
+  placeholder: PropTypes.string.isRequired,
   data: PropTypes.array.isRequired,
   onSelect: PropTypes.func.isRequired,
   isEditing: PropTypes.bool,
@@ -78,27 +71,15 @@ MultiSelectComponent.propTypes = {
 export default MultiSelectComponent;
 
 const styles = StyleSheet.create({
-  container: { padding: 1 },
+  container: { padding: 6 },
   dropdown: {
     height: 50,
-    backgroundColor: 'white',
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 5,
-    padding: 12,
-    // shadowColor: '#000',
-    // shadowOffset: {
-    //   width: 0,
-    //   height: 1,
-    // },
-    // shadowOpacity: 0.2,
-    // shadowRadius: 1.41,
-
-    elevation: 2,
+    backgroundColor: 'transparent',
+    borderBottomColor: 'gray',
+    borderBottomWidth: 0.5,
   },
   placeholderStyle: {
     fontSize: 16,
-    color: 'gray',
   },
   selectedTextStyle: {
     fontSize: 14,
@@ -114,34 +95,7 @@ const styles = StyleSheet.create({
   icon: {
     marginRight: 5,
   },
-  item: {
-    padding: 17,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
   selectedStyle: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 14,
-    backgroundColor: 'white',
-    shadowColor: '#000',
-    marginTop: 8,
-    marginRight: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
-
-    elevation: 2,
-  },
-  textSelectedStyle: {
-    marginRight: 5,
-    fontSize: 16,
+    borderRadius: 12,
   },
 });

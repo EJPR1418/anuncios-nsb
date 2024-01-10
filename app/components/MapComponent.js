@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { View, StyleSheet, SafeAreaView, Dimensions } from 'react-native';
+import { View, StyleSheet, Dimensions, Button } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-import { TextInput } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
@@ -27,7 +26,6 @@ function MapComponent() {
       },
     };
     setSelectedLocation(newSelectedLocation);
-    console.log(selectedLocation);
 
     mapRef.current?.animateToRegion({
       latitude: location.lat,
@@ -35,19 +33,23 @@ function MapComponent() {
       longitude: location.lng,
       longitudeDelta: 0.01,
     });
+  };
 
+  const handleSetLocation = () => {
+    // Perform any additional actions here if needed
+    // For now, let's navigate back to the previous screen and pass the selected location
     navigation.navigate('Detalles', {
-      selectedLocation: newSelectedLocation,
+      selectedLocation: selectedLocation,
     });
   };
   return (
-    <View>
+    <View style={styles.container}>
       <GooglePlacesAutocomplete
         placeholder='Buscar localidad'
         onPress={handlePlaceSelected}
         fetchDetails={true}
         query={{
-          key: 'AIzaSyBHaA-533YgKO6n88yFYm6bVKWMLGIJdxk',
+          key: 'AIzaSyBHaA-533YgKO6n88yFYm6bVKWMLGIJdxk', //Change Key Location
           language: 'en',
         }}
         styles={{
@@ -88,6 +90,15 @@ function MapComponent() {
           />
         )}
       </MapView>
+      {selectedLocation && (
+        <View style={styles.buttonContainer}>
+          <Button
+            title='Añadir'
+            onPress={handleSetLocation}
+            style={styles.setButton}
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -96,15 +107,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  mapContainer: {
-    flex: 1,
-  },
   map: {
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
   },
   searchBarContainer: {
     backgroundColor: 'white',
+  },
+  buttonContainer: {
+    position: 'absolute',
+    bottom: 20,
+    alignSelf: 'center',
+  },
+
+  setButton: {
+    color: 'yellow',
+    padding: 10,
+    borderRadius: 5,
   },
 });
 

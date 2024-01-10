@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { View, Platform, StyleSheet } from 'react-native';
-import { TextInput, IconButton } from 'react-native-paper';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import PropTypes from 'prop-types';
+import { Input, Icon } from '@rneui/themed';
+import { format } from 'date-fns';
 
 function CalendarInputComponent({
   mode,
@@ -14,11 +15,17 @@ function CalendarInputComponent({
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [date, setDate] = useState(new Date());
 
+  const formatDate = (currentDate) => {
+    return mode === 'time'
+      ? format(currentDate, 'hh:mm a')
+      : format(currentDate, 'MM/dd/yyyy');
+  };
+
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
     setDatePickerVisibility(Platform.OS === 'ios'); // Hide the picker on iOS immediately
-    setDate(currentDate);
-    onDateChange(currentDate);
+
+    onDateChange(formatDate(currentDate));
   };
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -30,42 +37,31 @@ function CalendarInputComponent({
 
   const handleConfirm = (date) => {
     hideDatePicker();
-
     if (date) {
-      onDateChange(date);
+      // const fDate = formatDate(date);
+      onDateChange(formatDate(date));
     }
   };
-  const formattedValue = value
-    ? mode === 'time'
-      ? value.toLocaleTimeString('en-US', {
-          hour: 'numeric',
-          minute: 'numeric',
-          hour12: true,
-        })
-      : value.toLocaleDateString('en-US')
-    : '';
 
-  const _icon = mode == 'date' ? 'calendar' : 'calendar-clock';
+  const _icon = mode == 'date' ? 'event' : 'schedule';
   return (
     <View>
       <View style={{ flexDirection: 'row' }}>
         <View style={{ flex: 2 }}>
-          <TextInput
+          <Input
             label={label}
-            mode='outlined'
-            value={formattedValue}
+            value={value}
             editable={false}
-          />
-        </View>
-        <View style={{ flex: 1, alignItems: 'center' }}>
-          <IconButton
-            icon={_icon}
-            size={30}
-            style={{
-              backgroundColor: '#ADD8E6',
-              borderRadius: 10,
-            }}
-            onPress={showDatePicker}
+            inputStyle={{ borderBottomWidth: 0 }} // Hides the bottom border
+            rightIcon={
+              <Icon
+                name={_icon}
+                type='material' // Adjust the icon library if needed
+                size={30}
+                color='black'
+                onPress={showDatePicker}
+              />
+            }
           />
         </View>
       </View>
@@ -85,7 +81,7 @@ function CalendarInputComponent({
 CalendarInputComponent.propTypes = {
   mode: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired, // Value should be a Date object
-  onDateChange: PropTypes.func.isRequired, // Callback function for date change
+  onDateChange: PropTypes.func.isRequired,
   label: PropTypes.string.isRequired, // Label for the input
   editable: PropTypes.bool,
 };
