@@ -71,7 +71,7 @@ MultiSelectComponent.propTypes = {
 export default MultiSelectComponent;
 
 const styles = StyleSheet.create({
-  container: { padding: 6 },
+  container: { marginLeft: 10, marginRight: 10 },
   dropdown: {
     height: 50,
     backgroundColor: 'transparent',

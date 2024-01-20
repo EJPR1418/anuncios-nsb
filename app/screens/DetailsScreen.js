@@ -1,13 +1,14 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-// import { Card, TextInput, Text, IconButton, Button } from 'react-native-paper';
-import { Card, Input, Text, Button, Icon, Divider } from '@rneui/themed';
+import { Card, Input, Text, Button, Icon, CheckBox } from '@rneui/themed';
 
 import MapView, { Marker } from 'react-native-maps';
 import { useRoute } from '@react-navigation/native';
 import { Formik } from 'formik';
-// import axios from 'axios';
 import * as yup from 'yup';
+import { db } from '../firebase/firebase';
+import { ref, push } from 'firebase/database';
+import { getStorage, putFile } from 'firebase/storage';
 
 import PropTypes from 'prop-types';
 import * as ImagePicker from 'expo-image-picker';
@@ -15,16 +16,16 @@ import { StackActions } from '@react-navigation/native';
 import MultipleDropdownComponent from '../components/MultipleDropdownComp';
 import DropdownComponent from '../components/DropdownComponent';
 import CurrencyInput from '../components/CurrencyInputComponent';
-// Import your custom components
 import CalendarInputComponent from '../components/CalendarInputComponent';
-// import DropDown from 'react-native-paper-dropdown';
 
 function DetailsScreen({ navigation }) {
   const [mapUrl, setMapUrl] = useState(); //https://maps.app.goo.gl/mEEeAsCuxG6MX9rRA
 
   const route = useRoute();
-  const selectedLocation = route.params?.selectedLocation;
-
+  // const { setFieldValue } = useFormikContext();
+  const mapRef = useRef();
+  const formikRef = useRef();
+  const { selectedLocation } = route.params || {};
   const [isEditing, setIsEditing] = useState(true);
 
   const typeFraterno = [
@@ -42,18 +43,18 @@ function DetailsScreen({ navigation }) {
     { label: 'Zona Caparra', value: '2' },
     { label: 'Capitulo Omicron', value: '3' },
   ];
-  const mapRef = useRef();
 
-  const handleSubmit = () => {
-    const popAction = StackActions.pop(1);
-
-    navigation.dispatch(popAction);
-
-    // Handle form submission, e.g., send data to the server
-  };
+  useEffect(() => {
+    if (selectedLocation) {
+      formikRef.current.setFieldValue('mapUrl', selectedLocation.name);
+      mapRef.current?.animateToRegion(selectedLocation.coordinates);
+    }
+  }, [selectedLocation, formikRef, mapRef]);
 
   const [image, setImage] = useState(require('../assets/escudo_nsb.jpg')); //https://picsum.photos/700
-  const [imageUri, setImageUri] = useState('');
+  const [fileName, setiFileName] = useState('');
+  const [filePath, setFilePath] = useState('');
+
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -63,21 +64,41 @@ function DetailsScreen({ navigation }) {
       quality: 1,
     });
 
-    // console.log(result);
-
     if (!result.canceled) {
       const { uri } = result.assets[0];
-      // console.log(uri);
-      setImageUri(uri);
+      const name = uri.replace(/^.*[\\/]/, '');
+      console.log(name);
+      setiFileName(name);
+      setFilePath(uri);
       setImage({ uri: result.assets[0].uri }); //Change to uri when select photo
     }
   };
 
-  const onSubmit = async (values, actions) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000)); //Change when calling post
-    actions.resetForm;
-    const postValues = { ...values, imageUri, selectedLocation };
-    console.log(postValues);
+  const onSubmit = async (values) => {
+    if (fileName && filePath) {
+      // const fileNameRef = ref(storage, nameFile);
+      try {
+        const storage = getStorage();
+        const pathImagesRef = ref(storage, `events/${fileName}`);
+        await putFile(pathImagesRef, filePath);
+        const downloadURL = await pathImagesRef.getDownloadURL();
+        console.log(downloadURL);
+      } catch (ex) {
+        console.log(ex);
+      }
+    }
+    const postValues = { ...values, selectedLocation };
+
+    try {
+      console.log(postValues);
+      // push(ref(db, 'nsb/events'), postValues);
+      // formikRef.current.resetForm();
+      // const popAction = StackActions.pop(1);
+
+      // navigation.dispatch(popAction);
+    } catch (ex) {
+      console.log(ex);
+    }
   };
 
   const detailsSchema = yup.object().shape({
@@ -91,14 +112,8 @@ function DetailsScreen({ navigation }) {
       .min(5, 'Muy Corto!')
       .max(100, 'Muy Largo!')
       .required('Requerido'),
-    type: yup
-      .string()
-      // .min(1, 'Seleccione el tipo de evento')
-      .required('Requerido'),
-    clothing: yup
-      .string()
-      // .min(1, 'Seleccione codigo de vestimenta')
-      .required('Requerido'),
+    type: yup.string().required('Requerido'),
+    clothing: yup.string().required('Requerido'),
     organizers: yup
       .array()
       .min(1, 'Seleccione al menos un organizador')
@@ -117,6 +132,7 @@ function DetailsScreen({ navigation }) {
 
   return (
     <Formik
+      innerRef={formikRef}
       initialValues={{
         title: '',
         description: '',
@@ -124,13 +140,14 @@ function DetailsScreen({ navigation }) {
         clothing: '',
         organizers: [],
         cost: '',
+        donations: false,
         startDate: '',
         startTime: '',
         endDate: '',
         endTime: '',
         mapUrl: '',
       }}
-      validationSchema={detailsSchema}
+      // validationSchema={detailsSchema}
       onSubmit={onSubmit}
     >
       {({
@@ -141,6 +158,7 @@ function DetailsScreen({ navigation }) {
         handleChange,
         handleSubmit,
         setFieldValue,
+        resetForm,
       }) => (
         <ScrollView>
           <View style={styles.mainContainer}>
@@ -188,67 +206,98 @@ function DetailsScreen({ navigation }) {
                   <Text style={styles.errorText}>{errors.description}</Text>
                 )}
               </View>
-              <View style={styles.rowContainer}>
-                <View style={styles.dropdownInputContainer}>
-                  <DropdownComponent
-                    data={typeFraterno}
-                    onSelect={(tipo) => {
-                      setFieldValue('type', tipo);
-                    }}
-                    placeholder='Tipo'
-                  />
-                  {errors.type && (
-                    <Text style={styles.errorText}>{errors.type}</Text>
-                  )}
-                </View>
-                <View style={styles.dropdownInputContainer}>
-                  <DropdownComponent
-                    data={clothingStyle}
-                    onSelect={(clothing) => {
-                      setFieldValue('clothing', clothing);
-                    }}
-                    placeholder='Vestimenta'
-                  />
-                  {errors.clothing && (
-                    <Text style={styles.errorText}>{errors.clothing}</Text>
-                  )}
+              <View style={styles.container}>
+                <View style={styles.rowContainer}>
+                  <View style={styles.dropdownInputContainer}>
+                    <Text style={styles.labelStyle}>Tipo</Text>
+
+                    <DropdownComponent
+                      data={typeFraterno}
+                      onSelect={(tipo) => {
+                        setFieldValue('type', tipo);
+                      }}
+                      placeholder='Seleccione'
+                    />
+                    {errors.type && touched.type && (
+                      <View style={styles.errorContainer}>
+                        <Text style={styles.errorText}>{errors.type}</Text>
+                      </View>
+                    )}
+                  </View>
+                  <View style={styles.dropdownInputContainer}>
+                    <Text style={styles.labelStyle}>Vestimenta</Text>
+
+                    <DropdownComponent
+                      data={clothingStyle}
+                      onSelect={(clothing) => {
+                        setFieldValue('clothing', clothing);
+                      }}
+                      placeholder='Seleccione'
+                    />
+                    {errors.clothing && touched.clothing && (
+                      <View style={styles.errorContainer}>
+                        <Text style={styles.errorText}>{errors.clothing}</Text>
+                      </View>
+                    )}
+                  </View>
                 </View>
               </View>
               <View style={styles.container}>
+                <Text style={styles.labelStyle}>Organizador</Text>
+
                 <MultipleDropdownComponent
                   data={fraternityList}
                   onSelect={(organizers) => {
                     setFieldValue('organizers', organizers);
                   }}
-                  placeholder='Organizado por...'
+                  placeholder='Seleccione...'
                 />
                 {errors.organizers && touched.organizers && (
-                  <Text style={styles.errorText}>{errors.organizers}</Text>
+                  <View style={styles.errorContainer}>
+                    <Text style={styles.errorText}>{errors.organizers}</Text>
+                  </View>
                 )}
               </View>
-              <View style={styles.container}>
-                <Input
-                  label='Costo o Donativo'
-                  value={values.cost}
-                  onChangeText={handleChange('cost')}
-                  keyboardType='numeric'
-                  onBlur={handleBlur('cost')}
-                />
-                {errors.cost && touched.cost && (
-                  <Text style={styles.errorText}>{errors.cost}</Text>
-                )}
-                {/* <CurrencyInput
-                  label='Costo o Donativo'
-                  value={values.cost}
-                  onChangeText={(maskedText, rawText) => {
-                    setFieldValue('cost', rawText);
-                    console.log(rawText);
-                  }}
-                /> */}
+              <View style={{ paddingTop: 20 }}>
+                <View style={styles.rowContainer}>
+                  <View style={styles.dropdownInputContainer}>
+                    <Input
+                      label='Costo'
+                      value={values.cost}
+                      onChangeText={handleChange('cost')}
+                      keyboardType='numeric'
+                      onBlur={handleBlur('cost')}
+                    />
+                    {errors.cost && touched.cost && (
+                      <Text style={styles.errorText}>{errors.cost}</Text>
+                    )}
+                  </View>
+                  <View style={styles.dropdownInputContainer}>
+                    <CheckBox
+                      center
+                      title='Donaciones?'
+                      checked={values.donations}
+                      size={28}
+                      color='grey'
+                      onPress={() =>
+                        setFieldValue('donations', !values.donations)
+                      }
+                    />
+                  </View>
+                </View>
               </View>
               <View style={styles.container}>
                 <View>
-                  <Text style={{ fontSize: 18, alignSelf: 'flex-start' }}>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      alignSelf: 'flex-start',
+                      paddingBottom: 5,
+                      paddingLeft: 5,
+                      fontWeight: 'bold',
+                      color: 'gray',
+                    }}
+                  >
                     Fecha de Inicio
                   </Text>
                   {/* <Divider /> */}
@@ -282,7 +331,16 @@ function DetailsScreen({ navigation }) {
               </View>
               <View style={styles.container}>
                 <View>
-                  <Text style={{ fontSize: 18, alignSelf: 'flex-start' }}>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      alignSelf: 'flex-start',
+                      paddingBottom: 5,
+                      paddingLeft: 5,
+                      fontWeight: 'bold',
+                      color: 'gray',
+                    }}
+                  >
                     Fecha de Culminacion
                   </Text>
                   {/* <Divider /> */}
@@ -320,11 +378,8 @@ function DetailsScreen({ navigation }) {
                     <Input
                       label='Localidad'
                       multiline={true}
-                      value={selectedLocation ? selectedLocation.name : ''}
-                      onChangeText={(url) => {
-                        setMapUrl(url);
-                        setFieldValue('mapUrl', url);
-                      }}
+                      value={values.mapUrl}
+                      onChangeText={handleChange('mapUrl')}
                       editable={false}
                       rightIcon={
                         <Icon
@@ -335,20 +390,10 @@ function DetailsScreen({ navigation }) {
                         />
                       }
                     />
-                    {errors.mapUrl && (
+                    {errors.mapUrl && touched.mapUrl && (
                       <Text style={styles.errorText}>{errors.mapUrl}</Text>
                     )}
                   </View>
-                  {/* <View
-                    style={{ flex: 1, justifyContent: 'center', padding: 1 }}
-                  >
-                    <Icon
-                      name='map-search'
-                      type='material-community'
-                      size={30}
-                      onPress={() => navigation.navigate('Mapa')}
-                    />
-                  </View> */}
                 </View>
                 {selectedLocation && (
                   <View style={styles.mapContainer}>
@@ -366,12 +411,29 @@ function DetailsScreen({ navigation }) {
                   </View>
                 )}
               </View>
-              <View style={{ padding: 30 }}>
-                <Button
-                  title='Crear'
-                  buttonStyle={{ backgroundColor: 'blue' }}
-                  onPress={handleSubmit}
-                />
+              <View style={styles.container}>
+                <View style={styles.rowContainer}>
+                  <View style={styles.calendarTimeContainer}>
+                    <Button
+                      title='Crear'
+                      buttonStyle={{
+                        backgroundColor: 'blue',
+                        borderRadius: 20,
+                      }}
+                      onPress={handleSubmit}
+                    />
+                  </View>
+                  <View style={styles.calendarTimeContainer}>
+                    <Button
+                      title='Limpiar'
+                      buttonStyle={{
+                        backgroundColor: 'blue',
+                        borderRadius: 20,
+                      }}
+                      onPress={resetForm}
+                    />
+                  </View>
+                </View>
               </View>
             </Card>
           </View>
@@ -438,6 +500,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingTop: 15,
   },
+  labelStyle: {
+    color: 'gray',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 10,
+  },
   editButtonContainer: {
     position: 'absolute',
     borderRadius: 50,
@@ -456,6 +524,9 @@ const styles = StyleSheet.create({
     color: 'red',
     paddingLeft: 10,
     fontSize: 12,
+  },
+  errorContainer: {
+    paddingTop: 20,
   },
 });
 

@@ -1,79 +1,175 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet } from 'react-native';
+import { Text, Icon } from '@rneui/themed';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
-import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+
 import HomeScreen from './HomeScreen';
 import DetailsScreen from './DetailsScreen';
 import SettingsScreen from './SettingsScreen';
+import ProfileScreen from './ProfileScreen';
+import LoginScreen from './LoginScreen';
+import RegisterScreen from './RegisterScreen';
+
 import MapComponent from '../components/MapComponent';
+import { onAuthStateChanged } from 'firebase/auth';
+import { app, auth } from '../firebase/firebase';
 
 const Stack = createNativeStackNavigator();
-const Tab = createMaterialBottomTabNavigator();
+const Drawer = createDrawerNavigator();
+// const auth = getAuth(app);
 
-function StackNavigator() {
+function Root() {
   return (
-    <Stack.Navigator>
-      <Stack.Screen
+    <Drawer.Navigator>
+      <Drawer.Screen
         name='Inicio'
         component={HomeScreen}
-        options={{ title: 'Eventos' }}
-      />
-      <Stack.Screen
-        name='Detalles'
-        component={DetailsScreen}
-        options={{ title: 'Detalles de Evento' }}
-      />
-      <Stack.Screen
-        name='Mapa'
-        component={MapComponent}
-        options={{ title: 'Mapa' }}
-      />
-      {/* <Stack.Screen name='Ajustes' component={SettingsScreen} options={{title: 'Ajustes'}}/> */}
-
-      {/* <Stack.Screen name="Profile" component={Profile} />
-      <Stack.Screen name="Settings" component={Settings} /> */}
-    </Stack.Navigator>
-  );
-}
-
-function TabNavigator() {
-  return (
-    <Tab.Navigator>
-      <Tab.Screen
-        name='Inicio'
-        component={StackNavigator}
         options={{
-          tabBarLabel: 'Inicio',
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name='home' color={color} size={26} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name='Ajustes'
-        component={SettingsScreen}
-        options={{
-          tabBarLabel: 'Ajustes',
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons
-              name='account-settings'
-              color={color}
-              size={26}
+          title: 'Inicio',
+          drawerIcon: ({ focused, size }) => (
+            <Icon
+              name='home'
+              type='material'
+              size={size}
+              color={focused ? '#7cc' : '#ccc'}
             />
           ),
         }}
       />
-    </Tab.Navigator>
+      <Drawer.Screen
+        name='Perfil'
+        component={ProfileScreen}
+        options={{
+          title: 'Perfil',
+          drawerIcon: ({ focused, size }) => (
+            <Icon
+              name='person'
+              type='material'
+              size={size}
+              color={focused ? '#7cc' : '#ccc'}
+            />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name='Ajustes'
+        component={SettingsScreen}
+        options={{
+          title: 'Ajustes',
+          drawerIcon: ({ focused, size }) => (
+            <Icon
+              name='settings'
+              type='material'
+              size={size}
+              color={focused ? '#7cc' : '#ccc'}
+            />
+          ),
+        }}
+      />
+      {/* <Drawer.Screen
+        name='Salir'
+        component={SettingsScreen}
+        options={{
+          title: 'Salir',
+          drawerIcon: ({ focused, size }) => (
+            <Icon
+              name='logout'
+              type='material'
+              size={size}
+              color={focused ? '#7cc' : '#ccc'}
+            />
+          ),
+        }}
+      /> */}
+    </Drawer.Navigator>
   );
 }
 
 function MainScreen() {
+  const [initializing, setInitializing] = useState(true);
+  const [user, setUser] = useState(null);
+
+  // Handle user state changes
+  const onAuthStateChangedHandler = (user) => {
+    setUser(user);
+    if (initializing) {
+      setInitializing(false);
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, onAuthStateChangedHandler);
+
+    return unsubscribe;
+  }, []);
+
+  if (initializing) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer>
-      <TabNavigator />
+      <Stack.Navigator>
+        {/* Set Login as the initial route */}
+        {user ? (
+          <Stack.Screen
+            name='Root'
+            component={Root}
+            options={{ headerShown: false }}
+          />
+        ) : (
+          <>
+            <Stack.Screen
+              name='Login'
+              component={LoginScreen}
+              options={{ headerShown: false }}
+            />
+          </>
+        )}
+
+        {/* <Stack.Screen
+          name='Login'
+          component={LoginScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name='Root'
+          component={Root}
+          options={{ headerShown: false }}
+        /> */}
+        <Stack.Screen
+          name='Register'
+          component={RegisterScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name='Detalles'
+          component={DetailsScreen}
+          options={{ title: 'Detalles de Evento' }}
+        />
+        <Stack.Screen
+          name='Mapa'
+          component={MapComponent}
+          options={{ title: 'Mapa' }}
+        />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }
 
 export default MainScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

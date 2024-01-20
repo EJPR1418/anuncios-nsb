@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Platform, StyleSheet } from 'react-native';
+import { View, Platform } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import PropTypes from 'prop-types';
 import { Input, Icon } from '@rneui/themed';
@@ -85,12 +85,5 @@ CalendarInputComponent.propTypes = {
   label: PropTypes.string.isRequired, // Label for the input
   editable: PropTypes.bool,
 };
-
-const styles = StyleSheet.create({
-  searchSection: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-});
 
 export default CalendarInputComponent;

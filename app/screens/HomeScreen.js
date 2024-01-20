@@ -36,7 +36,7 @@ function HomeScreen({ navigation }) {
           </View>
           <Divider />
           <View style={styles.container}>
-            <Text style={{ textAlign: 'justify' }}>
+            <Text style={{ textAlign: 'justify', fontSize: 14 }}>
               Buenos días mi gente, hoy son las misiones de la Mu Alpha Phi,
               solicitaron 15 Nu Sigma Beta, siempre llegamos a la cuota con la
               ayuda de ustedes. Los Capitulares cuentan con nosotros, vamos a
@@ -52,7 +52,7 @@ function HomeScreen({ navigation }) {
                 size={18}
                 color='black'
               />
-              <Text style={{ textAlign: 'justify' }}>
+              <Text style={{ textAlign: 'justify', fontSize: 14 }}>
                 Calle La Puerta, por ahi te vi
               </Text>
             </View>
@@ -117,6 +117,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     alignSelf: 'flex-end',
+    paddingTop: 5,
   },
   modalContainer: {
     flex: 1,

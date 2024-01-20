@@ -1,13 +1,17 @@
 import React, { useState, useRef } from 'react';
-import { View, StyleSheet, Dimensions, Button } from 'react-native';
+import { View, StyleSheet, Dimensions } from 'react-native';
+import { Button } from '@rneui/themed';
+
 import MapView, { Marker } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
+import PropTypes from 'prop-types';
 
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
 function MapComponent() {
   const navigation = useNavigation();
 
+  const deviceWidth = Dimensions.get('window').width;
   const [selectedLocation, setSelectedLocation] = useState();
   const mapRef = useRef();
 
@@ -33,11 +37,11 @@ function MapComponent() {
       longitude: location.lng,
       longitudeDelta: 0.01,
     });
+
+    // onLocationSelected(newSelectedLocation);
   };
 
   const handleSetLocation = () => {
-    // Perform any additional actions here if needed
-    // For now, let's navigate back to the previous screen and pass the selected location
     navigation.navigate('Detalles', {
       selectedLocation: selectedLocation,
     });
@@ -56,8 +60,9 @@ function MapComponent() {
           container: {
             flex: 0,
             position: 'absolute',
-            width: '100%',
-            marginTop: 10,
+            alignSelf: 'center',
+            width: deviceWidth - 10,
+            marginTop: 20,
             zIndex: 1,
           },
           listView: { backgroundColor: 'white' },
@@ -103,6 +108,12 @@ function MapComponent() {
   );
 }
 
+// MapComponent.propTypes = {
+//   onLocationSelected: PropTypes.func.isRequired,
+// };
+
+export default MapComponent;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -121,10 +132,8 @@ const styles = StyleSheet.create({
   },
 
   setButton: {
-    color: 'yellow',
+    backgroundColor: 'blue',
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 20,
   },
 });
-
-export default MapComponent;
