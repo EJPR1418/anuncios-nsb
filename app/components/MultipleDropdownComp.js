@@ -1,31 +1,20 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { MultiSelect } from 'react-native-element-dropdown';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import PropTypes from 'prop-types';
 
-// const data = [
-//   { label: 'Item 1', value: '1' },
-//   { label: 'Item 2', value: '2' },
-//   { label: 'Item 3', value: '3' },
-//   { label: 'Item 4', value: '4' },
-//   { label: 'Item 5', value: '5' },
-//   { label: 'Item 6', value: '6' },
-//   { label: 'Item 7', value: '7' },
-//   { label: 'Item 8', value: '8' },
-// ];
-
 const MultiSelectComponent = ({ placeholder, data, onSelect, isEditing }) => {
   const [selected, setSelected] = useState([]);
 
-  const renderItem = (item) => {
-    return (
-      <View style={styles.item}>
-        <Text style={styles.selectedTextStyle}>{item.label}</Text>
-        <AntDesign style={styles.icon} color='black' name='Safety' size={20} />
-      </View>
-    );
-  };
+  // const renderItem = (item) => {
+  //   return (
+  //     <View style={styles.item}>
+  //       <Text style={styles.selectedTextStyle}>{item.label}</Text>
+  //       <AntDesign style={styles.icon} color='black' name='Safety' size={20} />
+  //     </View>
+  //   );
+  // };
 
   return (
     <View style={styles.container}>

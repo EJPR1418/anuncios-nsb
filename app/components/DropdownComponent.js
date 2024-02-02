@@ -3,8 +3,8 @@ import { StyleSheet, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import PropTypes from 'prop-types';
 
-const DropdownComponent = ({ data, placeholder, onSelect }) => {
-  const [value, setValue] = useState(null);
+const DropdownComponent = ({ selected, data, placeholder, onSelect }) => {
+  const [value, setValue] = useState(selected);
 
   return (
     <View style={styles.container}>
@@ -22,8 +22,8 @@ const DropdownComponent = ({ data, placeholder, onSelect }) => {
         // searchPlaceholder="Search..."
         value={value}
         onChange={(item) => {
-          setValue(item.value);
           onSelect(item.label);
+          setValue(item.value);
         }}
       />
     </View>
@@ -31,6 +31,7 @@ const DropdownComponent = ({ data, placeholder, onSelect }) => {
 };
 
 DropdownComponent.propTypes = {
+  selected: PropTypes.string.isRequired,
   data: PropTypes.array.isRequired,
   onSelect: PropTypes.func.isRequired,
   placeholder: PropTypes.string.isRequired,

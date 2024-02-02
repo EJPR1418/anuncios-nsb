@@ -14,11 +14,11 @@ import RegisterScreen from './RegisterScreen';
 
 import MapComponent from '../components/MapComponent';
 import { onAuthStateChanged } from 'firebase/auth';
-import { app, auth } from '../firebase/firebase';
+import { auth } from '../firebase/firebase';
+// import auth from '@react-native-firebase/auth';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
-// const auth = getAuth(app);
 
 function Root() {
   return (
@@ -103,6 +103,8 @@ function MainScreen() {
     const unsubscribe = onAuthStateChanged(auth, onAuthStateChangedHandler);
 
     return unsubscribe;
+    // const subscriber = auth.onAuthStateChanged(onAuthStateChanged);
+    // return subscriber; // unsubscribe on unmount
   }, []);
 
   if (initializing) {

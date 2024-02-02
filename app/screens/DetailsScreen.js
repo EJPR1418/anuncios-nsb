@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import { ScrollView, StyleSheet, View, ActivityIndicator } from 'react-native';
 import { Card, Input, Text, Button, Icon, CheckBox } from '@rneui/themed';
 
 import MapView, { Marker } from 'react-native-maps';
 import { useRoute } from '@react-navigation/native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
-import { db } from '../firebase/firebase';
-import { ref, push } from 'firebase/database';
-import { getStorage, putFile } from 'firebase/storage';
+import { db, auth } from '../firebase/firebase';
+import { ref as dRef, push } from 'firebase/database';
+import { getStorage, uploadBytes, ref as sRef } from 'firebase/storage';
 
 import PropTypes from 'prop-types';
 import * as ImagePicker from 'expo-image-picker';
@@ -44,16 +44,21 @@ function DetailsScreen({ navigation }) {
     { label: 'Capitulo Omicron', value: '3' },
   ];
 
+  const firstUpdate = useRef(true);
   useEffect(() => {
     if (selectedLocation) {
       formikRef.current.setFieldValue('mapUrl', selectedLocation.name);
+      if (firstUpdate.current) {
+        firstUpdate.current = false;
+        return;
+      }
       mapRef.current?.animateToRegion(selectedLocation.coordinates);
     }
   }, [selectedLocation, formikRef, mapRef]);
-
+  const [isLoading, setIsLoading] = useState(false);
   const [image, setImage] = useState(require('../assets/escudo_nsb.jpg')); //https://picsum.photos/700
-  const [fileName, setiFileName] = useState('');
-  const [filePath, setFilePath] = useState('');
+  const [fileName, setiFileName] = useState(null);
+  const [imageBlob, setImageBlob] = useState(null);
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
@@ -66,38 +71,50 @@ function DetailsScreen({ navigation }) {
 
     if (!result.canceled) {
       const { uri } = result.assets[0];
-      const name = uri.replace(/^.*[\\/]/, '');
-      console.log(name);
-      setiFileName(name);
-      setFilePath(uri);
-      setImage({ uri: result.assets[0].uri }); //Change to uri when select photo
+      const blob = await uriToBlob(uri);
+      // console.log(blob);
+      if (blob) {
+        const { name } = blob._data;
+
+        setiFileName(name);
+        setImageBlob(blob);
+      }
+
+      setImage({ uri: uri });
     }
   };
 
-  const onSubmit = async (values) => {
-    if (fileName && filePath) {
-      // const fileNameRef = ref(storage, nameFile);
-      try {
-        const storage = getStorage();
-        const pathImagesRef = ref(storage, `events/${fileName}`);
-        await putFile(pathImagesRef, filePath);
-        const downloadURL = await pathImagesRef.getDownloadURL();
-        console.log(downloadURL);
-      } catch (ex) {
-        console.log(ex);
-      }
-    }
-    const postValues = { ...values, selectedLocation };
+  const uriToBlob = async (uri) => {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    return blob;
+  };
 
+  const onSubmit = async (values) => {
     try {
+      setIsLoading(true);
+
+      if (imageBlob && fileName) {
+        formikRef.current.setFieldValue('imageName', fileName);
+        const storage = getStorage();
+        const storageRef = sRef(storage, `events/${fileName}`);
+        uploadBytes(storageRef, imageBlob);
+      }
+      const postValues = fileName
+        ? { ...values, fileName, selectedLocation }
+        : { ...values, selectedLocation };
+      console.log(auth.currentUser);
       console.log(postValues);
-      // push(ref(db, 'nsb/events'), postValues);
-      // formikRef.current.resetForm();
+      push(dRef(db, 'nsb/events'), postValues);
+      formikRef.current.resetForm();
       // const popAction = StackActions.pop(1);
 
       // navigation.dispatch(popAction);
     } catch (ex) {
       console.log(ex);
+    } finally {
+      setIsLoading(false);
+      alert('Evento Creado');
     }
   };
 
@@ -110,7 +127,7 @@ function DetailsScreen({ navigation }) {
     description: yup
       .string()
       .min(5, 'Muy Corto!')
-      .max(100, 'Muy Largo!')
+      .max(250, 'Muy Largo!')
       .required('Requerido'),
     type: yup.string().required('Requerido'),
     clothing: yup.string().required('Requerido'),
@@ -121,8 +138,8 @@ function DetailsScreen({ navigation }) {
     cost: yup
       .number()
       .required('Requerido')
-      .min(1000, 'minimal Rp 1.000')
-      .positive('No numeros negativos'),
+      .positive('No numeros negativos')
+      .min(0.0),
     startDate: yup.string().required('Requerido'),
     startTime: yup.string().required('Requerido'),
     endDate: yup.string().required('Requerido'),
@@ -147,7 +164,7 @@ function DetailsScreen({ navigation }) {
         endTime: '',
         mapUrl: '',
       }}
-      // validationSchema={detailsSchema}
+      validationSchema={detailsSchema}
       onSubmit={onSubmit}
     >
       {({
@@ -213,6 +230,7 @@ function DetailsScreen({ navigation }) {
 
                     <DropdownComponent
                       data={typeFraterno}
+                      selected={values.type}
                       onSelect={(tipo) => {
                         setFieldValue('type', tipo);
                       }}
@@ -229,6 +247,7 @@ function DetailsScreen({ navigation }) {
 
                     <DropdownComponent
                       data={clothingStyle}
+                      selected={values.clothing}
                       onSelect={(clothing) => {
                         setFieldValue('clothing', clothing);
                       }}
@@ -434,6 +453,11 @@ function DetailsScreen({ navigation }) {
                     />
                   </View>
                 </View>
+                {isLoading && (
+                  <View style={styles.activityLoading}>
+                    <ActivityIndicator size='large' color='#0000ff' />
+                  </View>
+                )}
               </View>
             </Card>
           </View>
@@ -527,6 +551,15 @@ const styles = StyleSheet.create({
   },
   errorContainer: {
     paddingTop: 20,
+  },
+  activityLoading: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

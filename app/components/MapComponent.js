@@ -100,7 +100,7 @@ function MapComponent() {
           <Button
             title='Añadir'
             onPress={handleSetLocation}
-            style={styles.setButton}
+            buttonStyle={styles.setButton}
           />
         </View>
       )}
@@ -127,13 +127,13 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 40,
     alignSelf: 'center',
   },
 
   setButton: {
     backgroundColor: 'blue',
-    padding: 10,
+    // padding: 10,
     borderRadius: 20,
   },
 });
