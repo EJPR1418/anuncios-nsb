@@ -81,7 +81,7 @@ function HomeScreen({ navigation }) {
           <Button
             title='Ver Detalles'
             type='clear'
-            onPress={() => navigation.navigate('Detalles', { item })}
+            onPress={() => navigation.navigate('Detalles_Evento', { item })}
           />
         </View>
       </Card>

@@ -6,7 +6,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 
 import HomeScreen from './HomeScreen';
-import DetailsScreen from './DetailsScreen';
+import EventCreateScreen from './EventCreateScreen';
+import EventDetailsScreen from './EventDetailsScreen';
 import SettingsScreen from './SettingsScreen';
 import ProfileScreen from './ProfileScreen';
 import LoginScreen from './LoginScreen';
@@ -68,6 +69,21 @@ function Root() {
           ),
         }}
       />
+      <Drawer.Screen
+        name='Ajustes'
+        component={EventCreateScreen}
+        options={{
+          title: 'Crear Evento',
+          drawerIcon: ({ focused, size }) => (
+            <Icon
+              name='settings'
+              type='material'
+              size={size}
+              color={focused ? '#7cc' : '#ccc'}
+            />
+          ),
+        }}
+      />
       {/* <Drawer.Screen
         name='Salir'
         component={SettingsScreen}
@@ -110,7 +126,7 @@ function MainScreen() {
   if (initializing) {
     return (
       <View style={styles.container}>
-        <Text>Loading...</Text>
+        <Text>Cargando...</Text>
       </View>
     );
   }
@@ -151,8 +167,8 @@ function MainScreen() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name='Detalles'
-          component={DetailsScreen}
+          name='Detalles_Evento'
+          component={EventDetailsScreen}
           options={{ title: 'Detalles de Evento' }}
         />
         <Stack.Screen

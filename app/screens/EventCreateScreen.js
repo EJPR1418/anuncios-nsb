@@ -100,15 +100,13 @@ function DetailsScreen({ navigation }) {
         uploadBytes(storageRef, imageBlob);
       }
 
-      const createdBy = auth.currentUser;
-      const createdDate = new Date();
+      formikRef.current.setFieldValue('createdBy', auth.currentUser);
+      formikRef.current.setFieldValue('createdDate', new Date());
 
       const postValues = {
         ...values,
         fileName,
         selectedLocation,
-        createdBy,
-        createdDate,
       };
 
       // console.log(auth.currentUser);
@@ -159,11 +157,11 @@ function DetailsScreen({ navigation }) {
     <Formik
       innerRef={formikRef}
       initialValues={{
-        title: item ? item.title : '',
+        title: '',
         description: '',
-        type: item ? item.type : '',
-        clothing: '1',
-        organizers: item ? item.organizers : '',
+        type: '',
+        clothing: '',
+        organizers: '',
         cost: '',
         donations: false,
         startDate: '',
@@ -171,6 +169,10 @@ function DetailsScreen({ navigation }) {
         endDate: '',
         endTime: '',
         locationAddress: '',
+        createdBy: '',
+        createdDate: '',
+        editedBy: '',
+        editedDate: '',
       }}
       validationSchema={detailsSchema}
       onSubmit={onSubmit}
