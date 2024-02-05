@@ -29,7 +29,7 @@ function HomeScreen({ navigation }) {
           id: key,
           ...dataVal[key],
         }));
-        // console.log(dataArr);
+        console.log(dataArr);
         setData(dataArr);
       } else {
         setData([]);
@@ -81,7 +81,7 @@ function HomeScreen({ navigation }) {
           <Button
             title='Ver Detalles'
             type='clear'
-            onPress={() => navigation.navigate('Detalles')}
+            onPress={() => navigation.navigate('Detalles', { item })}
           />
         </View>
       </Card>

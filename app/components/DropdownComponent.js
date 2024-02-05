@@ -22,7 +22,7 @@ const DropdownComponent = ({ selected, data, placeholder, onSelect }) => {
         // searchPlaceholder="Search..."
         value={value}
         onChange={(item) => {
-          onSelect(item.label);
+          onSelect(item.value);
           setValue(item.value);
         }}
       />

@@ -19,13 +19,11 @@ import CurrencyInput from '../components/CurrencyInputComponent';
 import CalendarInputComponent from '../components/CalendarInputComponent';
 
 function DetailsScreen({ navigation }) {
-  const [mapUrl, setMapUrl] = useState(); //https://maps.app.goo.gl/mEEeAsCuxG6MX9rRA
-
   const route = useRoute();
-  // const { setFieldValue } = useFormikContext();
   const mapRef = useRef();
   const formikRef = useRef();
-  const { selectedLocation } = route.params || {};
+  const { selectedLocation, item } = route.params || {};
+
   const [isEditing, setIsEditing] = useState(true);
 
   const typeFraterno = [
@@ -46,8 +44,9 @@ function DetailsScreen({ navigation }) {
 
   const firstUpdate = useRef(true);
   useEffect(() => {
+    console.log(item);
     if (selectedLocation) {
-      formikRef.current.setFieldValue('mapUrl', selectedLocation.name);
+      formikRef.current.setFieldValue('locationAddress', selectedLocation.name);
       if (firstUpdate.current) {
         firstUpdate.current = false;
         return;
@@ -57,7 +56,7 @@ function DetailsScreen({ navigation }) {
   }, [selectedLocation, formikRef, mapRef]);
   const [isLoading, setIsLoading] = useState(false);
   const [image, setImage] = useState(require('../assets/escudo_nsb.jpg')); //https://picsum.photos/700
-  const [fileName, setiFileName] = useState(null);
+  const [fileName, setFileName] = useState(null);
   const [imageBlob, setImageBlob] = useState(null);
 
   const pickImage = async () => {
@@ -76,7 +75,7 @@ function DetailsScreen({ navigation }) {
       if (blob) {
         const { name } = blob._data;
 
-        setiFileName(name);
+        setFileName(name);
         setImageBlob(blob);
       }
 
@@ -100,10 +99,19 @@ function DetailsScreen({ navigation }) {
         const storageRef = sRef(storage, `events/${fileName}`);
         uploadBytes(storageRef, imageBlob);
       }
-      const postValues = fileName
-        ? { ...values, fileName, selectedLocation }
-        : { ...values, selectedLocation };
-      console.log(auth.currentUser);
+
+      const createdBy = auth.currentUser;
+      const createdDate = new Date();
+
+      const postValues = {
+        ...values,
+        fileName,
+        selectedLocation,
+        createdBy,
+        createdDate,
+      };
+
+      // console.log(auth.currentUser);
       console.log(postValues);
       push(dRef(db, 'nsb/events'), postValues);
       formikRef.current.resetForm();
@@ -144,25 +152,25 @@ function DetailsScreen({ navigation }) {
     startTime: yup.string().required('Requerido'),
     endDate: yup.string().required('Requerido'),
     endTime: yup.string().required('Requerido'),
-    mapUrl: yup.string().required('Requerido'),
+    locationAddress: yup.string().required('Requerido'),
   });
 
   return (
     <Formik
       innerRef={formikRef}
       initialValues={{
-        title: '',
+        title: item ? item.title : '',
         description: '',
-        type: '',
-        clothing: '',
-        organizers: [],
+        type: item ? item.type : '',
+        clothing: '1',
+        organizers: item ? item.organizers : '',
         cost: '',
         donations: false,
         startDate: '',
         startTime: '',
         endDate: '',
         endTime: '',
-        mapUrl: '',
+        locationAddress: '',
       }}
       validationSchema={detailsSchema}
       onSubmit={onSubmit}
@@ -262,10 +270,12 @@ function DetailsScreen({ navigation }) {
                 </View>
               </View>
               <View style={styles.container}>
+                <View style={{ paddingTop: 20 }}></View>
                 <Text style={styles.labelStyle}>Organizador</Text>
 
                 <MultipleDropdownComponent
                   data={fraternityList}
+                  selected={values.organizers}
                   onSelect={(organizers) => {
                     setFieldValue('organizers', organizers);
                   }}
@@ -397,8 +407,8 @@ function DetailsScreen({ navigation }) {
                     <Input
                       label='Localidad'
                       multiline={true}
-                      value={values.mapUrl}
-                      onChangeText={handleChange('mapUrl')}
+                      value={values.locationAddress}
+                      onChangeText={handleChange('locationAddress')}
                       editable={false}
                       rightIcon={
                         <Icon
@@ -409,8 +419,10 @@ function DetailsScreen({ navigation }) {
                         />
                       }
                     />
-                    {errors.mapUrl && touched.mapUrl && (
-                      <Text style={styles.errorText}>{errors.mapUrl}</Text>
+                    {errors.locationAddress && touched.locationAddress && (
+                      <Text style={styles.errorText}>
+                        {errors.locationAddress}
+                      </Text>
                     )}
                   </View>
                 </View>
@@ -436,7 +448,7 @@ function DetailsScreen({ navigation }) {
                     <Button
                       title='Crear'
                       buttonStyle={{
-                        backgroundColor: 'blue',
+                        backgroundColor: '#002366',
                         borderRadius: 20,
                       }}
                       onPress={handleSubmit}
@@ -446,7 +458,7 @@ function DetailsScreen({ navigation }) {
                     <Button
                       title='Limpiar'
                       buttonStyle={{
-                        backgroundColor: 'blue',
+                        backgroundColor: '#002366',
                         borderRadius: 20,
                       }}
                       onPress={resetForm}
