@@ -39,6 +39,10 @@ function HomeScreen({ navigation }) {
     return () => unsubscribe();
   }, []);
 
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
+
   const renderItem = ({ item }) => (
     <View>
       <Card containerStyle={styles.card}>
@@ -72,7 +76,7 @@ function HomeScreen({ navigation }) {
               color='black'
             />
             <Text style={{ textAlign: 'justify', fontSize: 14 }}>
-              {item.mapUrl}
+              {item.locationAddress}
             </Text>
           </View>
         </View>
@@ -105,17 +109,34 @@ function HomeScreen({ navigation }) {
     </View>
   );
 
-  const toggleModal = () => {
-    setModalVisible(!isModalVisible);
-  };
-
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={data}
-        keyExtractor={(item, index) => item.id}
-        renderItem={renderItem}
-      />
+    <View>
+      {data.length > 0 ? (
+        <FlatList
+          data={data}
+          keyExtractor={(item, index) => item.id}
+          renderItem={renderItem}
+        />
+      ) : (
+        <View
+          style={{
+            height: '100%',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <Text
+            h4
+            style={{
+              fontWeight: 'bold',
+              color: 'gray',
+              textAlign: 'center',
+            }}
+          >
+            No se encontraron eventos...
+          </Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -131,7 +152,14 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     flex: 1,
   },
+  centeredContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'blue',
+  },
   rowContainer: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,

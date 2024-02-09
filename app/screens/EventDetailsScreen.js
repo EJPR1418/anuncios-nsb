@@ -1,14 +1,26 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ScrollView, StyleSheet, View, ActivityIndicator } from 'react-native';
-import { Card, Input, Text, Button, Icon, CheckBox } from '@rneui/themed';
+import {
+  Card,
+  Input,
+  Text,
+  Button,
+  Icon,
+  CheckBox,
+  Dialog,
+} from '@rneui/themed';
 
 import MapView, { Marker } from 'react-native-maps';
 import { useRoute } from '@react-navigation/native';
 import { Formik } from 'formik';
-import * as yup from 'yup';
 import { db, auth } from '../firebase/firebase';
 import { ref as dRef, push } from 'firebase/database';
-import { getStorage, uploadBytes, ref as sRef } from 'firebase/storage';
+import {
+  getStorage,
+  uploadBytes,
+  ref as sRef,
+  getDownloadURL,
+} from 'firebase/storage';
 
 import PropTypes from 'prop-types';
 import * as ImagePicker from 'expo-image-picker';
@@ -17,12 +29,14 @@ import MultipleDropdownComponent from '../components/MultipleDropdownComp';
 import DropdownComponent from '../components/DropdownComponent';
 import CurrencyInput from '../components/CurrencyInputComponent';
 import CalendarInputComponent from '../components/CalendarInputComponent';
+import EventsSchema from '../schemas/EventSchema';
 
 function EventDetailsScreen({ navigation }) {
   const route = useRoute();
   const mapRef = useRef();
   const formikRef = useRef();
   const { selectedLocation, item } = route.params || {};
+  const { coordinates, fileName } = item.selectedLocation;
 
   const [isEditing, setIsEditing] = useState(true);
 
@@ -42,22 +56,38 @@ function EventDetailsScreen({ navigation }) {
     { label: 'Capitulo Omicron', value: '3' },
   ];
 
-  const firstUpdate = useRef(true);
-  useEffect(() => {
-    console.log(item);
-    if (selectedLocation) {
-      formikRef.current.setFieldValue('locationAddress', selectedLocation.name);
-      if (firstUpdate.current) {
-        firstUpdate.current = false;
-        return;
-      }
-      mapRef.current?.animateToRegion(selectedLocation.coordinates);
-    }
-  }, [selectedLocation, formikRef, mapRef]);
   const [isLoading, setIsLoading] = useState(false);
   const [image, setImage] = useState(require('../assets/escudo_nsb.jpg')); //https://picsum.photos/700
-  const [fileName, setFileName] = useState(null);
+  const [localFileName, setlocalFileName] = useState(null);
   const [imageBlob, setImageBlob] = useState(null);
+  // const firstUpdate = useRef(true);
+  // useEffect(() => {
+  //   console.log(item);
+  //   if (selectedLocation) {
+  //     formikRef.current.setFieldValue('locationAddress', selectedLocation.name);
+  //     if (firstUpdate.current) {
+  //       firstUpdate.current = false;
+  //       return;
+  //     }
+  //     mapRef.current?.animateToRegion(selectedLocation.coordinates);
+  //   }
+  // }, [selectedLocation, formikRef, mapRef]);
+
+  useEffect(() => {
+    const getImage = async () => {
+      const storage = getStorage();
+      const reference = sRef(
+        storage,
+        `events/767AD512-3A14-48F8-8334-4AA75F159873.jpg`
+      );
+      await getDownloadURL(reference).then((url) => {
+        setImage({ uri: url });
+      });
+    };
+    console.log(item);
+
+    getImage();
+  }, []);
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
@@ -71,11 +101,10 @@ function EventDetailsScreen({ navigation }) {
     if (!result.canceled) {
       const { uri } = result.assets[0];
       const blob = await uriToBlob(uri);
-      // console.log(blob);
       if (blob) {
         const { name } = blob._data;
 
-        setFileName(name);
+        setlocalFileName(name);
         setImageBlob(blob);
       }
 
@@ -93,23 +122,29 @@ function EventDetailsScreen({ navigation }) {
     try {
       setIsLoading(true);
 
-      if (imageBlob && fileName) {
-        formikRef.current.setFieldValue('imageName', fileName);
+      if (imageBlob && localFileName) {
         const storage = getStorage();
-        const storageRef = sRef(storage, `events/${fileName}`);
+        const storageRef = sRef(storage, `events/${localFileName}`);
         uploadBytes(storageRef, imageBlob);
       }
 
-      formikRef.current.setFieldValue('editedBy', auth.currentUser);
-      formikRef.current.setFieldValue('editedDate', new Date());
+      const editedBy = auth.currentUser;
+      const editedDate = new Date();
+      const fileName = localFileName;
+
+      // formikRef.current.setFieldValue('editedBy', auth.currentUser);
+      // formikRef.current.setFieldValue('editedDate', new Date());
+      // formikRef.current.setFieldValue('fileName', localFileName);
 
       const postValues = {
         ...values,
-        fileName,
         selectedLocation,
+        editedBy,
+        editedDate,
+        fileName,
       };
 
-      // console.log(auth.currentUser);
+      // TODO - Update by id
       console.log(postValues);
       push(dRef(db, 'nsb/events'), postValues);
       formikRef.current.resetForm();
@@ -124,57 +159,29 @@ function EventDetailsScreen({ navigation }) {
     }
   };
 
-  const detailsSchema = yup.object().shape({
-    title: yup
-      .string()
-      .min(2, 'Muy Corto!')
-      .max(30, 'Muy Largo!')
-      .required('Requerido'),
-    description: yup
-      .string()
-      .min(5, 'Muy Corto!')
-      .max(250, 'Muy Largo!')
-      .required('Requerido'),
-    type: yup.string().required('Requerido'),
-    clothing: yup.string().required('Requerido'),
-    organizers: yup
-      .array()
-      .min(1, 'Seleccione al menos un organizador')
-      .required('Requerido'),
-    cost: yup
-      .number()
-      .required('Requerido')
-      .positive('No numeros negativos')
-      .min(0.0),
-    startDate: yup.string().required('Requerido'),
-    startTime: yup.string().required('Requerido'),
-    endDate: yup.string().required('Requerido'),
-    endTime: yup.string().required('Requerido'),
-    locationAddress: yup.string().required('Requerido'),
-  });
-
   return (
     <Formik
       innerRef={formikRef}
       initialValues={{
         title: item ? item.title : '',
-        description: '',
+        description: item ? item.description : '',
         type: item ? item.type : '',
-        clothing: '1',
-        organizers: item ? item.organizers : '',
-        cost: '',
-        donations: false,
-        startDate: '',
-        startTime: '',
-        endDate: '',
-        endTime: '',
-        locationAddress: '',
-        createdBy: '',
-        createdDate: '',
+        clothing: item ? item.clothing : '',
+        organizers: item ? item.organizers : [],
+        cost: item ? item.cost : '',
+        donations: item.donations,
+        startDate: item ? item.startDate : '',
+        startTime: item ? item.startTime : '',
+        endDate: item ? item.endDate : '',
+        endTime: item ? item.endTime : '',
+        locationAddress: item ? item.locationAddress : '',
+        // fileName: item ? item.locationAddress : '',
+        // createdBy: '',
+        // createdDate: '',
         editedBy: '',
         editedDate: '',
       }}
-      validationSchema={detailsSchema}
+      validationSchema={EventsSchema}
       onSubmit={onSubmit}
     >
       {({
@@ -417,7 +424,7 @@ function EventDetailsScreen({ navigation }) {
                           name='map-search'
                           type='material-community'
                           size={30}
-                          onPress={() => navigation.navigate('Mapa')}
+                          // onPress={() => navigation.navigate('Mapa')}
                         />
                       }
                     />
@@ -428,7 +435,7 @@ function EventDetailsScreen({ navigation }) {
                     )}
                   </View>
                 </View>
-                {selectedLocation && (
+                {/* {selectedLocation && (
                   <View style={styles.mapContainer}>
                     <MapView
                       provider='google'
@@ -442,9 +449,21 @@ function EventDetailsScreen({ navigation }) {
                       />
                     </MapView>
                   </View>
+                )} */}
+                {item.selectedLocation && (
+                  <View style={styles.mapContainer}>
+                    <MapView
+                      provider='google'
+                      style={styles.map}
+                      initialRegion={coordinates}
+                      ref={mapRef}
+                    >
+                      <Marker coordinate={coordinates} title='Ave Frate!' />
+                    </MapView>
+                  </View>
                 )}
               </View>
-              <View style={styles.container}>
+              {/* <View style={styles.container}>
                 <View style={styles.rowContainer}>
                   <View style={styles.calendarTimeContainer}>
                     <Button
@@ -472,7 +491,7 @@ function EventDetailsScreen({ navigation }) {
                     <ActivityIndicator size='large' color='#0000ff' />
                   </View>
                 )}
-              </View>
+              </View> */}
             </Card>
           </View>
         </ScrollView>

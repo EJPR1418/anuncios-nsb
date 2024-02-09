@@ -5,7 +5,6 @@ import { Card, Input, Text, Button, Icon, CheckBox } from '@rneui/themed';
 import MapView, { Marker } from 'react-native-maps';
 import { useRoute } from '@react-navigation/native';
 import { Formik } from 'formik';
-import * as yup from 'yup';
 import { db, auth } from '../firebase/firebase';
 import { ref as dRef, push } from 'firebase/database';
 import { getStorage, uploadBytes, ref as sRef } from 'firebase/storage';
@@ -17,12 +16,13 @@ import MultipleDropdownComponent from '../components/MultipleDropdownComp';
 import DropdownComponent from '../components/DropdownComponent';
 import CurrencyInput from '../components/CurrencyInputComponent';
 import CalendarInputComponent from '../components/CalendarInputComponent';
+import EventsSchema from '../schemas/EventSchema';
 
-function DetailsScreen({ navigation }) {
+function EventCreateScreen({ navigation }) {
   const route = useRoute();
   const mapRef = useRef();
   const formikRef = useRef();
-  const { selectedLocation, item } = route.params || {};
+  const { selectedLocation } = route.params || {};
 
   const [isEditing, setIsEditing] = useState(true);
 
@@ -44,7 +44,6 @@ function DetailsScreen({ navigation }) {
 
   const firstUpdate = useRef(true);
   useEffect(() => {
-    console.log(item);
     if (selectedLocation) {
       formikRef.current.setFieldValue('locationAddress', selectedLocation.name);
       if (firstUpdate.current) {
@@ -56,7 +55,7 @@ function DetailsScreen({ navigation }) {
   }, [selectedLocation, formikRef, mapRef]);
   const [isLoading, setIsLoading] = useState(false);
   const [image, setImage] = useState(require('../assets/escudo_nsb.jpg')); //https://picsum.photos/700
-  const [fileName, setFileName] = useState(null);
+  const [localFileName, setLocalFileName] = useState(null);
   const [imageBlob, setImageBlob] = useState(null);
 
   const pickImage = async () => {
@@ -75,7 +74,7 @@ function DetailsScreen({ navigation }) {
       if (blob) {
         const { name } = blob._data;
 
-        setFileName(name);
+        setLocalFileName(name);
         setImageBlob(blob);
       }
 
@@ -93,20 +92,26 @@ function DetailsScreen({ navigation }) {
     try {
       setIsLoading(true);
 
-      if (imageBlob && fileName) {
-        formikRef.current.setFieldValue('imageName', fileName);
+      if (imageBlob && localFileName) {
+        // formikRef.current.setFieldValue('imageName', localFileName);
         const storage = getStorage();
-        const storageRef = sRef(storage, `events/${fileName}`);
+        const storageRef = sRef(storage, `events/${localFileName}`);
         uploadBytes(storageRef, imageBlob);
       }
+      const createdBy = auth.currentUser.providerId;
+      const createdDate = new Date();
+      const fileName = localFileName;
 
-      formikRef.current.setFieldValue('createdBy', auth.currentUser);
-      formikRef.current.setFieldValue('createdDate', new Date());
+      // formikRef.current.setFieldValue('createdBy', auth.currentUser);
+      // formikRef.current.setFieldValue('createdDate', new Date());
+      // formikRef.current.setFieldValue('fileName', localFileName);
 
       const postValues = {
         ...values,
-        fileName,
         selectedLocation,
+        createdBy,
+        createdDate,
+        fileName,
       };
 
       // console.log(auth.currentUser);
@@ -118,40 +123,13 @@ function DetailsScreen({ navigation }) {
       // navigation.dispatch(popAction);
     } catch (ex) {
       console.log(ex);
+      alert(ex);
+      return;
     } finally {
       setIsLoading(false);
       alert('Evento Creado');
     }
   };
-
-  const detailsSchema = yup.object().shape({
-    title: yup
-      .string()
-      .min(2, 'Muy Corto!')
-      .max(30, 'Muy Largo!')
-      .required('Requerido'),
-    description: yup
-      .string()
-      .min(5, 'Muy Corto!')
-      .max(250, 'Muy Largo!')
-      .required('Requerido'),
-    type: yup.string().required('Requerido'),
-    clothing: yup.string().required('Requerido'),
-    organizers: yup
-      .array()
-      .min(1, 'Seleccione al menos un organizador')
-      .required('Requerido'),
-    cost: yup
-      .number()
-      .required('Requerido')
-      .positive('No numeros negativos')
-      .min(0.0),
-    startDate: yup.string().required('Requerido'),
-    startTime: yup.string().required('Requerido'),
-    endDate: yup.string().required('Requerido'),
-    endTime: yup.string().required('Requerido'),
-    locationAddress: yup.string().required('Requerido'),
-  });
 
   return (
     <Formik
@@ -161,7 +139,7 @@ function DetailsScreen({ navigation }) {
         description: '',
         type: '',
         clothing: '',
-        organizers: '',
+        organizers: [],
         cost: '',
         donations: false,
         startDate: '',
@@ -174,7 +152,7 @@ function DetailsScreen({ navigation }) {
         editedBy: '',
         editedDate: '',
       }}
-      validationSchema={detailsSchema}
+      validationSchema={EventsSchema}
       onSubmit={onSubmit}
     >
       {({
@@ -331,7 +309,6 @@ function DetailsScreen({ navigation }) {
                   >
                     Fecha de Inicio
                   </Text>
-                  {/* <Divider /> */}
                 </View>
                 <View style={styles.rowContainer}>
                   <View style={styles.calendarTimeContainer}>
@@ -480,7 +457,7 @@ function DetailsScreen({ navigation }) {
     </Formik>
   );
 }
-DetailsScreen.propTypes = {
+EventCreateScreen.propTypes = {
   navigation: PropTypes.shape({
     dispatch: PropTypes.func.isRequired,
     navigate: PropTypes.func.isRequired,
@@ -577,4 +554,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DetailsScreen;
+export default EventCreateScreen;

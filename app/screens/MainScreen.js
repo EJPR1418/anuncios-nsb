@@ -23,7 +23,7 @@ const Drawer = createDrawerNavigator();
 
 function Root() {
   return (
-    <Drawer.Navigator>
+    <Drawer.Navigator detachInactiveScreens={false}>
       <Drawer.Screen
         name='Inicio'
         component={HomeScreen}
@@ -70,7 +70,7 @@ function Root() {
         }}
       />
       <Drawer.Screen
-        name='Ajustes'
+        name='Crear_Evento'
         component={EventCreateScreen}
         options={{
           title: 'Crear Evento',

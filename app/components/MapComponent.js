@@ -42,7 +42,7 @@ function MapComponent() {
   };
 
   const handleSetLocation = () => {
-    navigation.navigate('Detalles', {
+    navigation.navigate('Crear_Evento', {
       selectedLocation: selectedLocation,
     });
   };
