@@ -13,9 +13,16 @@ import Modal from 'react-native-modal';
 import { db } from '../firebase/firebase';
 // import { fetchEvent } from '../firebase/helpers';
 import { ref as dRef, query, orderByChild, onValue } from 'firebase/database';
+import {
+  getStorage,
+  uploadBytes,
+  ref as sRef,
+  getDownloadURL,
+} from 'firebase/storage';
 
 function HomeScreen({ navigation }) {
   const [isModalVisible, setModalVisible] = useState(false);
+  const [image, setImage] = useState();
   const [data, setData] = useState([]);
 
   const deviceHeight = Dimensions.get('window').height;
@@ -31,6 +38,20 @@ function HomeScreen({ navigation }) {
         }));
         console.log(dataArr);
         setData(dataArr);
+
+        const storage = getStorage();
+        dataArr.forEach(async (item) => {
+          const fileName = !item.fileName ? 'escudo_nsb.jpg' : item.fileName; // Assuming the field is named fileName
+          const imageRef = sRef(storage, `events/${fileName}`);
+
+          try {
+            const url = await getDownloadURL(imageRef);
+            item.imageUrl = url; // Add imageUrl property to the item
+          } catch (error) {
+            console.error('Error fetching image:', error);
+            // Handle error fetching image
+          }
+        });
       } else {
         setData([]);
       }
@@ -39,16 +60,21 @@ function HomeScreen({ navigation }) {
     return () => unsubscribe();
   }, []);
 
-  const toggleModal = () => {
+  const toggleModal = (cardImage) => {
+    console.log(cardImage);
     setModalVisible(!isModalVisible);
   };
 
   const renderItem = ({ item }) => (
     <View>
       <Card containerStyle={styles.card}>
-        <TouchableOpacity onPress={toggleModal}>
+        <TouchableOpacity
+          onPress={({ imageUrl }) => {
+            toggleModal(imageUrl);
+          }}
+        >
           <Card.Image
-            source={{ uri: 'https://picsum.photos/700' }}
+            source={{ uri: item.imageUrl }}
             style={{ height: 200, borderRadius: 10 }}
           />
         </TouchableOpacity>
@@ -75,7 +101,7 @@ function HomeScreen({ navigation }) {
               size={18}
               color='black'
             />
-            <Text style={{ textAlign: 'justify', fontSize: 14 }}>
+            <Text style={{ textAlign: 'justify', fontSize: 14, margin: 7 }}>
               {item.locationAddress}
             </Text>
           </View>
@@ -99,7 +125,7 @@ function HomeScreen({ navigation }) {
         <View style={styles.modalContainer}>
           <TouchableOpacity onPress={toggleModal}>
             <Image
-              source={{ uri: 'https://picsum.photos/700' }}
+              source={{ uri: item.imageUrl }}
               style={{ height: deviceHeight, width: deviceWidth }}
               resizeMode='contain'
             />

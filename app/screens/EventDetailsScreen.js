@@ -75,16 +75,13 @@ function EventDetailsScreen({ navigation }) {
 
   useEffect(() => {
     const getImage = async () => {
+      if (!item.fileName) return;
       const storage = getStorage();
-      const reference = sRef(
-        storage,
-        `events/767AD512-3A14-48F8-8334-4AA75F159873.jpg`
-      );
+      const reference = sRef(storage, `events/${item.fileName}`);
       await getDownloadURL(reference).then((url) => {
         setImage({ uri: url });
       });
     };
-    console.log(item);
 
     getImage();
   }, []);
