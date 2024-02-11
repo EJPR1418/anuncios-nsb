@@ -173,6 +173,7 @@ function EventCreateScreen({ navigation }) {
                   source={image}
                   style={styles.cardImage}
                   resizeMode='cover'
+                  PlaceholderContent={<ActivityIndicator />}
                 />
                 <View style={styles.editButtonContainer}>
                   <Icon

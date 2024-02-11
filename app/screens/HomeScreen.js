@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   FlatList,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import { Card, Text, Button, Image, Divider, Icon } from '@rneui/themed';
 import Modal from 'react-native-modal';
@@ -22,7 +23,7 @@ import {
 
 function HomeScreen({ navigation }) {
   const [isModalVisible, setModalVisible] = useState(false);
-  const [image, setImage] = useState();
+  const [imageFullScreen, setImageFullScreen] = useState();
   const [data, setData] = useState([]);
 
   const deviceHeight = Dimensions.get('window').height;
@@ -60,8 +61,7 @@ function HomeScreen({ navigation }) {
     return () => unsubscribe();
   }, []);
 
-  const toggleModal = (cardImage) => {
-    console.log(cardImage);
+  const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
 
@@ -69,13 +69,15 @@ function HomeScreen({ navigation }) {
     <View>
       <Card containerStyle={styles.card}>
         <TouchableOpacity
-          onPress={({ imageUrl }) => {
-            toggleModal(imageUrl);
+          onPress={() => {
+            setImageFullScreen(item.imageUrl);
+            toggleModal();
           }}
         >
           <Card.Image
             source={{ uri: item.imageUrl }}
             style={{ height: 200, borderRadius: 10 }}
+            PlaceholderContent={<ActivityIndicator />}
           />
         </TouchableOpacity>
         <View style={styles.container}>
@@ -119,15 +121,16 @@ function HomeScreen({ navigation }) {
         isVisible={isModalVisible}
         onBackdropPress={toggleModal}
         onBackButtonPress={toggleModal}
-        animationIn='slideInUp'
-        animationOut='slideOutDown'
+        // animationIn='slideInUp'
+        // animationOut='slideOutDown'
       >
         <View style={styles.modalContainer}>
           <TouchableOpacity onPress={toggleModal}>
             <Image
-              source={{ uri: item.imageUrl }}
+              source={{ uri: imageFullScreen }}
               style={{ height: deviceHeight, width: deviceWidth }}
               resizeMode='contain'
+              PlaceholderContent={<ActivityIndicator />}
             />
           </TouchableOpacity>
         </View>
@@ -142,6 +145,7 @@ function HomeScreen({ navigation }) {
           data={data}
           keyExtractor={(item, index) => item.id}
           renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
         />
       ) : (
         <View

@@ -57,7 +57,7 @@ function EventDetailsScreen({ navigation }) {
   ];
 
   const [isLoading, setIsLoading] = useState(false);
-  const [image, setImage] = useState(require('../assets/escudo_nsb.jpg')); //https://picsum.photos/700
+  const [image, setImage] = useState({ uri: item.imageURL }); //https://picsum.photos/700
   const [localFileName, setlocalFileName] = useState(null);
   const [imageBlob, setImageBlob] = useState(null);
   // const firstUpdate = useRef(true);
@@ -74,16 +74,17 @@ function EventDetailsScreen({ navigation }) {
   // }, [selectedLocation, formikRef, mapRef]);
 
   useEffect(() => {
-    const getImage = async () => {
-      if (!item.fileName) return;
-      const storage = getStorage();
-      const reference = sRef(storage, `events/${item.fileName}`);
-      await getDownloadURL(reference).then((url) => {
-        setImage({ uri: url });
-      });
-    };
+    console.log(item);
+    // const getImage = async () => {
+    //   if (!item.fileName) return;
+    //   const storage = getStorage();
+    //   const reference = sRef(storage, `events/${item.fileName}`);
+    //   await getDownloadURL(reference).then((url) => {
+    //     setImage({ uri: url });
+    //   });
+    // };
 
-    getImage();
+    // getImage();
   }, []);
 
   const pickImage = async () => {
@@ -199,6 +200,7 @@ function EventDetailsScreen({ navigation }) {
                   source={image}
                   style={styles.cardImage}
                   resizeMode='cover'
+                  PlaceholderContent={<ActivityIndicator />}
                 />
                 <View style={styles.editButtonContainer}>
                   <Icon
