@@ -37,22 +37,21 @@ function HomeScreen({ navigation }) {
           id: key,
           ...dataVal[key],
         }));
-        console.log(dataArr);
-        setData(dataArr);
 
         const storage = getStorage();
         dataArr.forEach(async (item) => {
-          const fileName = !item.fileName ? 'escudo_nsb.jpg' : item.fileName; // Assuming the field is named fileName
+          const fileName = !item.fileName ? 'escudo_nsb.jpg' : item.fileName;
           const imageRef = sRef(storage, `events/${fileName}`);
 
           try {
             const url = await getDownloadURL(imageRef);
-            item.imageUrl = url; // Add imageUrl property to the item
+            item.imageUrl = url;
           } catch (error) {
             console.error('Error fetching image:', error);
-            // Handle error fetching image
           }
         });
+        console.log(dataArr);
+        setData(dataArr);
       } else {
         setData([]);
       }
@@ -119,20 +118,24 @@ function HomeScreen({ navigation }) {
       </Card>
       <Modal
         isVisible={isModalVisible}
-        onBackdropPress={toggleModal}
-        onBackButtonPress={toggleModal}
+        // onBackdropPress={toggleModal}
+        // onBackButtonPress={toggleModal}
+        backdropColor='black'
         // animationIn='slideInUp'
         // animationOut='slideOutDown'
+        // hideModalContentWhileAnimating={true}
+        onSwipeComplete={toggleModal}
+        swipeDirection='up'
       >
         <View style={styles.modalContainer}>
-          <TouchableOpacity onPress={toggleModal}>
-            <Image
-              source={{ uri: imageFullScreen }}
-              style={{ height: deviceHeight, width: deviceWidth }}
-              resizeMode='contain'
-              PlaceholderContent={<ActivityIndicator />}
-            />
-          </TouchableOpacity>
+          {/* <TouchableOpacity onPress={toggleModal}> */}
+          <Image
+            source={{ uri: imageFullScreen }}
+            style={{ height: deviceHeight, width: deviceWidth }}
+            resizeMode='contain'
+            PlaceholderContent={<ActivityIndicator />}
+          />
+          {/* </TouchableOpacity> */}
         </View>
       </Modal>
     </View>

@@ -49,6 +49,7 @@ function CalendarInputComponent({
       <View style={{ flexDirection: 'row' }}>
         <View style={{ flex: 2 }}>
           <Input
+            disabled={!editable}
             label={label}
             value={value}
             editable={false}
@@ -59,7 +60,7 @@ function CalendarInputComponent({
                 type='material' // Adjust the icon library if needed
                 size={30}
                 color='black'
-                onPress={showDatePicker}
+                onPress={editable ? showDatePicker : null}
               />
             }
           />

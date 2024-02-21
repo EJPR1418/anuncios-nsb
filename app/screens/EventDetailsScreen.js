@@ -1,5 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ScrollView, StyleSheet, View, ActivityIndicator } from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  View,
+  ActivityIndicator,
+  Linking,
+} from 'react-native';
 import {
   Card,
   Input,
@@ -8,9 +14,10 @@ import {
   Icon,
   CheckBox,
   Dialog,
+  BottomSheet,
 } from '@rneui/themed';
 
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Callout } from 'react-native-maps';
 import { useRoute } from '@react-navigation/native';
 import { Formik } from 'formik';
 import { db, auth } from '../firebase/firebase';
@@ -57,9 +64,11 @@ function EventDetailsScreen({ navigation }) {
   ];
 
   const [isLoading, setIsLoading] = useState(false);
-  const [image, setImage] = useState({ uri: item.imageURL }); //https://picsum.photos/700
+  const [image, setImage] = useState(null); //https://picsum.photos/700
   const [localFileName, setlocalFileName] = useState(null);
   const [imageBlob, setImageBlob] = useState(null);
+  const [isVisible, setIsVisible] = useState(false);
+
   // const firstUpdate = useRef(true);
   // useEffect(() => {
   //   console.log(item);
@@ -75,6 +84,7 @@ function EventDetailsScreen({ navigation }) {
 
   useEffect(() => {
     console.log(item);
+    setImage({ uri: item.imageUrl });
     // const getImage = async () => {
     //   if (!item.fileName) return;
     //   const storage = getStorage();
@@ -116,6 +126,20 @@ function EventDetailsScreen({ navigation }) {
     return blob;
   };
 
+  const openGoogleMaps = () => {
+    const { latitude, longitude } = coordinates;
+    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+    Linking.openURL(googleMapsUrl);
+    setIsVisible(false);
+  };
+
+  const openAppleMaps = () => {
+    const { latitude, longitude } = coordinates;
+    const appleMapsUrl = `http://maps.apple.com/?ll=${latitude},${longitude}`;
+    Linking.openURL(appleMapsUrl);
+    setIsVisible(false);
+  };
+
   const onSubmit = async (values) => {
     try {
       setIsLoading(true);
@@ -129,10 +153,6 @@ function EventDetailsScreen({ navigation }) {
       const editedBy = auth.currentUser;
       const editedDate = new Date();
       const fileName = localFileName;
-
-      // formikRef.current.setFieldValue('editedBy', auth.currentUser);
-      // formikRef.current.setFieldValue('editedDate', new Date());
-      // formikRef.current.setFieldValue('fileName', localFileName);
 
       const postValues = {
         ...values,
@@ -204,6 +224,7 @@ function EventDetailsScreen({ navigation }) {
                 />
                 <View style={styles.editButtonContainer}>
                   <Icon
+                    disabled={isEditing}
                     name='edit'
                     type='material'
                     color='black'
@@ -216,10 +237,10 @@ function EventDetailsScreen({ navigation }) {
               <Card.Divider />
               <View style={styles.container}>
                 <Input
+                  disabled={isEditing}
                   label='Titulo'
                   value={values.title}
                   onChangeText={handleChange('title')}
-                  editable={isEditing}
                   onBlur={handleBlur('title')}
                 />
                 {errors.title && touched.title && (
@@ -228,11 +249,11 @@ function EventDetailsScreen({ navigation }) {
               </View>
               <View style={styles.container}>
                 <Input
+                  disabled={isEditing}
                   label='Descripcion'
                   multiline={true}
                   value={values.description}
                   onChangeText={handleChange('description')}
-                  editable={isEditing}
                   onBlur={handleBlur('description')}
                 />
                 {errors.description && touched.description && (
@@ -245,6 +266,7 @@ function EventDetailsScreen({ navigation }) {
                     <Text style={styles.labelStyle}>Tipo</Text>
 
                     <DropdownComponent
+                      editable={isEditing}
                       data={typeFraterno}
                       selected={values.type}
                       onSelect={(tipo) => {
@@ -262,6 +284,7 @@ function EventDetailsScreen({ navigation }) {
                     <Text style={styles.labelStyle}>Vestimenta</Text>
 
                     <DropdownComponent
+                      editable={isEditing}
                       data={clothingStyle}
                       selected={values.clothing}
                       onSelect={(clothing) => {
@@ -282,6 +305,7 @@ function EventDetailsScreen({ navigation }) {
                 <Text style={styles.labelStyle}>Organizador</Text>
 
                 <MultipleDropdownComponent
+                  editable={isEditing}
                   data={fraternityList}
                   selected={values.organizers}
                   onSelect={(organizers) => {
@@ -299,6 +323,7 @@ function EventDetailsScreen({ navigation }) {
                 <View style={styles.rowContainer}>
                   <View style={styles.dropdownInputContainer}>
                     <Input
+                      disabled={isEditing}
                       label='Costo'
                       value={values.cost}
                       onChangeText={handleChange('cost')}
@@ -311,6 +336,7 @@ function EventDetailsScreen({ navigation }) {
                   </View>
                   <View style={styles.dropdownInputContainer}>
                     <CheckBox
+                      disabled={isEditing}
                       center
                       title='Donaciones?'
                       checked={values.donations}
@@ -346,7 +372,7 @@ function EventDetailsScreen({ navigation }) {
                       onDateChange={(date) => setFieldValue('startDate', date)}
                       label='Dia'
                       mode='date'
-                      editable={isEditing}
+                      editable={!isEditing}
                     />
                     {errors.startDate && touched.startDate && (
                       <Text style={styles.errorText}>{errors.startDate}</Text>
@@ -358,7 +384,7 @@ function EventDetailsScreen({ navigation }) {
                       onDateChange={(date) => setFieldValue('startTime', date)}
                       label='Hora'
                       mode='time'
-                      editable={isEditing}
+                      editable={!isEditing}
                     />
                     {errors.startTime && touched.startTime && (
                       <Text style={styles.errorText}>{errors.startTime}</Text>
@@ -389,7 +415,7 @@ function EventDetailsScreen({ navigation }) {
                       onDateChange={(date) => setFieldValue('endDate', date)}
                       label='Dia'
                       mode='date'
-                      editable={isEditing}
+                      editable={!isEditing}
                     />
                     {errors.endDate && touched.endDate && (
                       <Text style={styles.errorText}>{errors.endDate}</Text>
@@ -401,7 +427,7 @@ function EventDetailsScreen({ navigation }) {
                       onDateChange={(date) => setFieldValue('endTime', date)}
                       label='Hora'
                       mode='time'
-                      editable={isEditing}
+                      editable={!isEditing}
                     />
                     {errors.endTime && touched.endTime && (
                       <Text style={styles.errorText}>{errors.endTime}</Text>
@@ -414,6 +440,7 @@ function EventDetailsScreen({ navigation }) {
                   <View style={(styles.container, { flex: 5 })}>
                     <Input
                       label='Localidad'
+                      placeholder='Oprima el boton'
                       multiline={true}
                       value={values.locationAddress}
                       onChangeText={handleChange('locationAddress')}
@@ -426,6 +453,7 @@ function EventDetailsScreen({ navigation }) {
                           // onPress={() => navigation.navigate('Mapa')}
                         />
                       }
+                      disabled={isEditing}
                     />
                     {errors.locationAddress && touched.locationAddress && (
                       <Text style={styles.errorText}>
@@ -458,6 +486,18 @@ function EventDetailsScreen({ navigation }) {
                       ref={mapRef}
                     >
                       <Marker coordinate={coordinates} title='Ave Frate!' />
+                      <Callout tooltip>
+                        <View style={styles.calloutContainer}>
+                          <Text
+                            style={styles.calloutText}
+                            onPress={() => {
+                              setIsVisible(true);
+                            }}
+                          >
+                            Abrir en mapa
+                          </Text>
+                        </View>
+                      </Callout>
                     </MapView>
                   </View>
                 )}
@@ -491,6 +531,30 @@ function EventDetailsScreen({ navigation }) {
                   </View>
                 )}
               </View> */}
+              <View style={{ flex: 1 }}>
+                <BottomSheet isVisible={isVisible}>
+                  <View style={styles.buttonContainer}>
+                    <Button
+                      title='Abrir en Google Maps'
+                      onPress={openGoogleMaps}
+                      buttonStyle={styles.button}
+                      titleStyle={styles.buttonTitle}
+                    />
+                    <Button
+                      title='Abrir en Apple Maps'
+                      onPress={openAppleMaps}
+                      buttonStyle={styles.button}
+                      titleStyle={styles.buttonTitle}
+                    />
+                    <Button
+                      title='Cancelar'
+                      onPress={() => setIsVisible(false)}
+                      buttonStyle={[styles.button, styles.cancelButton]}
+                      titleStyle={styles.buttonTitle}
+                    />
+                  </View>
+                </BottomSheet>
+              </View>
             </Card>
           </View>
         </ScrollView>
@@ -592,6 +656,32 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  calloutContainer: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    // backgroundColor: 'white',
+    borderRadius: 10,
+    elevation: 4,
+  },
+  calloutText: {
+    fontSize: 16,
+    color: 'blue',
+  },
+  buttonContainer: {
+    alignItems: 'stretch',
+    justifyContent: 'center',
+    marginVertical: 20,
+  },
+  button: {
+    marginVertical: 5,
+    backgroundColor: '#002366', // Set your button background color here
+  },
+  buttonTitle: {
+    fontSize: 16,
+  },
+  cancelButton: {
+    backgroundColor: 'red', // Set your cancel button background color here
   },
 });
 

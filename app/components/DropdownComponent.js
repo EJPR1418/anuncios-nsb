@@ -3,12 +3,19 @@ import { StyleSheet, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import PropTypes from 'prop-types';
 
-const DropdownComponent = ({ selected, data, placeholder, onSelect }) => {
+const DropdownComponent = ({
+  selected,
+  data,
+  placeholder,
+  onSelect,
+  editable,
+}) => {
   const [value, setValue] = useState(selected);
 
   return (
     <View style={styles.container}>
       <Dropdown
+        disable={editable}
         style={styles.dropdown}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
@@ -35,6 +42,7 @@ DropdownComponent.propTypes = {
   data: PropTypes.array.isRequired,
   onSelect: PropTypes.func.isRequired,
   placeholder: PropTypes.string.isRequired,
+  editable: PropTypes.bool.isRequired,
 };
 
 export default DropdownComponent;

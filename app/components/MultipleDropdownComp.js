@@ -3,12 +3,19 @@ import { StyleSheet, View } from 'react-native';
 import { MultiSelect } from 'react-native-element-dropdown';
 import PropTypes from 'prop-types';
 
-const MultiSelectComponent = ({ selected, placeholder, data, onSelect }) => {
+const MultiSelectComponent = ({
+  selected,
+  placeholder,
+  data,
+  onSelect,
+  editable,
+}) => {
   const [value, setValue] = useState(selected);
 
   return (
     <View style={styles.container}>
       <MultiSelect
+        disable={editable}
         style={styles.dropdown}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
@@ -36,7 +43,7 @@ MultiSelectComponent.propTypes = {
   placeholder: PropTypes.string.isRequired,
   data: PropTypes.array.isRequired,
   onSelect: PropTypes.func.isRequired,
-  isEditing: PropTypes.bool,
+  editable: PropTypes.bool.isRequired,
 };
 
 export default MultiSelectComponent;
@@ -54,6 +61,7 @@ const styles = StyleSheet.create({
   },
   selectedTextStyle: {
     fontSize: 14,
+    color: 'black',
   },
   iconStyle: {
     width: 20,
