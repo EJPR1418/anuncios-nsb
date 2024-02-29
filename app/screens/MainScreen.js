@@ -11,6 +11,7 @@ import EventDetailsScreen from './EventDetailsScreen';
 import SettingsScreen from './SettingsScreen';
 import ProfileScreen from './ProfileScreen';
 import LoginScreen from './LoginScreen';
+import LogoutScreen from './LogoutScreen';
 import RegisterScreen from './RegisterScreen';
 
 import MapComponent from '../components/MapComponent';
@@ -21,7 +22,7 @@ import { auth } from '../firebase/firebase';
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
-function Root() {
+const Root = () => {
   return (
     <Drawer.Navigator detachInactiveScreens={false}>
       <Drawer.Screen
@@ -84,9 +85,9 @@ function Root() {
           ),
         }}
       />
-      {/* <Drawer.Screen
+      <Drawer.Screen
         name='Salir'
-        component={SettingsScreen}
+        component={LogoutScreen}
         options={{
           title: 'Salir',
           drawerIcon: ({ focused, size }) => (
@@ -98,12 +99,12 @@ function Root() {
             />
           ),
         }}
-      /> */}
+      />
     </Drawer.Navigator>
   );
-}
+};
 
-function MainScreen() {
+const MainScreen = () => {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState(null);
 
@@ -179,7 +180,7 @@ function MainScreen() {
       </Stack.Navigator>
     </NavigationContainer>
   );
-}
+};
 
 export default MainScreen;
 

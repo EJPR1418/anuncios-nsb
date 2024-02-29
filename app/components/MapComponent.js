@@ -1,6 +1,13 @@
 import React, { useState, useRef } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Dimensions,
+  Modal,
+  SafeAreaView,
+} from 'react-native';
 import { Button } from '@rneui/themed';
+// import { Modal } from 'react-native-modal';
 
 import MapView, { Marker } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
@@ -8,14 +15,15 @@ import PropTypes from 'prop-types';
 
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
-function MapComponent() {
-  const navigation = useNavigation();
+function MapComponent({ isVisible, closeModal }) {
+  // const navigation = useNavigation();
 
   const deviceWidth = Dimensions.get('window').width;
   const [selectedLocation, setSelectedLocation] = useState();
   const mapRef = useRef();
 
   const handlePlaceSelected = (data, details) => {
+    console.log(data);
     // Extract coordinates from the details
     const { location } = details.geometry;
 
@@ -42,79 +50,89 @@ function MapComponent() {
   };
 
   const handleSetLocation = () => {
-    navigation.navigate('Crear_Evento', {
-      selectedLocation: selectedLocation,
-    });
+    // navigation.navigate('Crear_Evento', {
+    //   selectedLocation: selectedLocation,
+    // });
+    // console.log(selectedLocation);
+    // navigation.goBack(null, selectedLocation);
+    closeModal(selectedLocation);
   };
   return (
-    <View style={styles.container}>
-      <GooglePlacesAutocomplete
-        placeholder='Buscar localidad'
-        onPress={handlePlaceSelected}
-        fetchDetails={true}
-        query={{
-          key: 'AIzaSyBHaA-533YgKO6n88yFYm6bVKWMLGIJdxk', //Change Key Location
-          language: 'en',
-        }}
-        styles={{
-          container: {
-            flex: 0,
-            position: 'absolute',
-            alignSelf: 'center',
-            width: deviceWidth - 10,
-            marginTop: 20,
-            zIndex: 1,
-          },
-          listView: { backgroundColor: 'white' },
-          textInput: {
-            height: 38,
-            color: 'black',
-            fontSize: 16,
-          },
-        }}
-      />
-      {/* AIzaSyBHaA-533YgKO6n88yFYm6bVKWMLGIJdxk */}
-      <MapView
-        provider='google'
-        style={styles.map}
-        initialRegion={{
-          latitude: 18.33893085548665,
-          latitudeDelta: 3.0155829779597134,
-          longitude: -66.55138915345485,
-          longitudeDelta: 2.9817361344754687,
-        }}
-        ref={mapRef}
-      >
+    <Modal visible={isVisible} onBackdropPress={closeModal} x>
+      <SafeAreaView style={styles.container}>
+        <GooglePlacesAutocomplete
+          keepResultsAfterBlur={true}
+          placeholder='Buscar localidad'
+          onPress={handlePlaceSelected}
+          fetchDetails={true}
+          query={{
+            key: 'AIzaSyBHaA-533YgKO6n88yFYm6bVKWMLGIJdxk', //Change Key Location
+            language: 'en',
+          }}
+          styles={{
+            container: {
+              flex: 0,
+              position: 'absolute',
+              alignSelf: 'center',
+              width: deviceWidth - 10,
+              marginTop: 80,
+              zIndex: 1,
+            },
+            listView: { backgroundColor: 'white' },
+            textInput: {
+              height: 38,
+              color: 'black',
+              fontSize: 16,
+            },
+          }}
+        />
+        {/* AIzaSyBHaA-533YgKO6n88yFYm6bVKWMLGIJdxk */}
+        <MapView
+          provider='google'
+          style={styles.map}
+          initialRegion={{
+            latitude: 18.33893085548665,
+            latitudeDelta: 3.0155829779597134,
+            longitude: -66.55138915345485,
+            longitudeDelta: 2.9817361344754687,
+          }}
+          ref={mapRef}
+        >
+          {selectedLocation && (
+            <Marker
+              coordinate={{
+                latitude: selectedLocation.coordinates.latitude,
+                longitude: selectedLocation.coordinates.longitude,
+              }}
+              title='Ave Frate!'
+            />
+          )}
+        </MapView>
         {selectedLocation && (
-          <Marker
-            coordinate={{
-              latitude: selectedLocation.coordinates.latitude,
-              longitude: selectedLocation.coordinates.longitude,
-            }}
-            title='Ave Frate!'
-          />
+          <View style={styles.buttonContainer}>
+            <Button
+              title='Añadir'
+              onPress={handleSetLocation}
+              buttonStyle={styles.setButton}
+            />
+          </View>
         )}
-      </MapView>
-      {selectedLocation && (
-        <View style={styles.buttonContainer}>
-          <Button
-            title='Añadir'
-            onPress={handleSetLocation}
-            buttonStyle={styles.setButton}
-          />
-        </View>
-      )}
-    </View>
+      </SafeAreaView>
+    </Modal>
   );
 }
 
-// MapComponent.propTypes = {
-//   onLocationSelected: PropTypes.func.isRequired,
-// };
+MapComponent.propTypes = {
+  isVisible: PropTypes.bool.isRequired,
+  closeModal: PropTypes.func.isRequired,
+};
 
 export default MapComponent;
 
 const styles = StyleSheet.create({
+  modal: {
+    margin: 0,
+  },
   container: {
     flex: 1,
   },

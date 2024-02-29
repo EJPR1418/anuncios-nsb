@@ -37,12 +37,13 @@ import DropdownComponent from '../components/DropdownComponent';
 import CurrencyInput from '../components/CurrencyInputComponent';
 import CalendarInputComponent from '../components/CalendarInputComponent';
 import EventsSchema from '../schemas/EventSchema';
+import MapComponent from '../components/MapComponent';
 
 function EventDetailsScreen({ navigation }) {
   const route = useRoute();
   const mapRef = useRef();
   const formikRef = useRef();
-  const { selectedLocation, item } = route.params || {};
+  const { item } = route.params || {};
   const { coordinates, fileName } = item.selectedLocation;
 
   const [isEditing, setIsEditing] = useState(true);
@@ -69,7 +70,23 @@ function EventDetailsScreen({ navigation }) {
   const [imageBlob, setImageBlob] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
 
-  // const firstUpdate = useRef(true);
+  const firstUpdate = useRef(true);
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selLocation, setSelLocation] = useState();
+
+  const handleOpenModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleCloseModal = (location) => {
+    setIsModalVisible(false);
+    formikRef.current.setFieldValue('locationAddress', location.name);
+    mapRef.current?.animateToRegion(location.coordinates);
+    console.log(location);
+    setSelLocation(location);
+  };
+
   // useEffect(() => {
   //   console.log(item);
   //   if (selectedLocation) {
@@ -85,6 +102,16 @@ function EventDetailsScreen({ navigation }) {
   useEffect(() => {
     console.log(item);
     setImage({ uri: item.imageUrl });
+    //console.log(selectedLocation);
+    // if (selectedLocation) {
+    //   console.log('ENTREE');
+    //   formikRef.current.setFieldValue('locationAddress', selectedLocation.name);
+    //   mapRef.current?.animateToRegion(selectedLocation.coordinates);
+    // if (firstUpdate.current) {
+    //   firstUpdate.current = false;
+    //   return;
+    // }
+    // }
     // const getImage = async () => {
     //   if (!item.fileName) return;
     //   const storage = getStorage();
@@ -96,6 +123,15 @@ function EventDetailsScreen({ navigation }) {
 
     // getImage();
   }, []);
+
+  const handleEditButtonClick = () => {
+    setIsEditing(!isEditing);
+  };
+
+  const handleConfirmButtonClick = () => {
+    // Logic to save updated details
+    setIsEditing(false);
+  };
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
@@ -140,41 +176,79 @@ function EventDetailsScreen({ navigation }) {
     setIsVisible(false);
   };
 
-  const onSubmit = async (values) => {
-    try {
-      setIsLoading(true);
+  // const onSubmit = async (values) => {
+  //   try {
+  //     setIsLoading(true);
 
-      if (imageBlob && localFileName) {
-        const storage = getStorage();
-        const storageRef = sRef(storage, `events/${localFileName}`);
-        uploadBytes(storageRef, imageBlob);
-      }
+  //     if (imageBlob && localFileName) {
+  //       const storage = getStorage();
+  //       const storageRef = sRef(storage, `events/${localFileName}`);
+  //       uploadBytes(storageRef, imageBlob);
+  //     }
 
-      const editedBy = auth.currentUser;
-      const editedDate = new Date();
-      const fileName = localFileName;
+  //     const editedBy = auth.currentUser;
+  //     const editedDate = new Date();
+  //     const fileName = localFileName;
 
-      const postValues = {
-        ...values,
-        selectedLocation,
-        editedBy,
-        editedDate,
-        fileName,
-      };
+  //     const postValues = {
+  //       ...values,
+  //       selectedLocation,
+  //       editedBy,
+  //       editedDate,
+  //       fileName,
+  //     };
 
-      // TODO - Update by id
-      console.log(postValues);
-      push(dRef(db, 'nsb/events'), postValues);
-      formikRef.current.resetForm();
-      // const popAction = StackActions.pop(1);
+  //     // TODO - Update by id
+  //     console.log(postValues);
+  //     push(dRef(db, 'nsb/events'), postValues);
+  //     formikRef.current.resetForm();
+  //     // const popAction = StackActions.pop(1);
 
-      // navigation.dispatch(popAction);
-    } catch (ex) {
-      console.log(ex);
-    } finally {
-      setIsLoading(false);
-      alert('Evento Creado');
-    }
+  //     // navigation.dispatch(popAction);
+  //   } catch (ex) {
+  //     console.log(ex);
+  //   } finally {
+  //     setIsLoading(false);
+  //     alert('Evento Creado');
+  //   }
+  // };
+
+  const confirmEdit = async (values) => {
+    console.log(values);
+    // try {
+    //   setIsLoading(true);
+
+    //   if (imageBlob && localFileName) {
+    //     const storage = getStorage();
+    //     const storageRef = sRef(storage, `events/${localFileName}`);
+    //     uploadBytes(storageRef, imageBlob);
+    //   }
+
+    //   const editedBy = auth.currentUser;
+    //   const editedDate = new Date();
+    //   const fileName = localFileName;
+
+    //   const postValues = {
+    //     ...values,
+    //     selectedLocation,
+    //     editedBy,
+    //     editedDate,
+    //     fileName,
+    //   };
+
+    //   // TODO - Update by id
+    //   console.log(postValues);
+    //   push(dRef(db, 'nsb/events'), postValues);
+    //   formikRef.current.resetForm();
+    //   // const popAction = StackActions.pop(1);
+
+    //   // navigation.dispatch(popAction);
+    // } catch (ex) {
+    //   console.log(ex);
+    // } finally {
+    //   setIsLoading(false);
+    //   alert('Evento Editado');
+    // }
   };
 
   return (
@@ -200,7 +274,7 @@ function EventDetailsScreen({ navigation }) {
         editedDate: '',
       }}
       validationSchema={EventsSchema}
-      onSubmit={onSubmit}
+      onSubmit={confirmEdit}
     >
       {({
         values,
@@ -222,17 +296,18 @@ function EventDetailsScreen({ navigation }) {
                   resizeMode='cover'
                   PlaceholderContent={<ActivityIndicator />}
                 />
-                <View style={styles.editButtonContainer}>
-                  <Icon
-                    disabled={isEditing}
-                    name='edit'
-                    type='material'
-                    color='black'
-                    size={30}
-                    solid
-                    onPress={() => pickImage()}
-                  />
-                </View>
+                {isEditing ? null : (
+                  <View style={styles.editButtonContainer}>
+                    <Icon
+                      name='edit'
+                      type='material'
+                      color='black'
+                      size={30}
+                      solid
+                      onPress={() => pickImage()}
+                    />
+                  </View>
+                )}
               </View>
               <Card.Divider />
               <View style={styles.container}>
@@ -450,7 +525,7 @@ function EventDetailsScreen({ navigation }) {
                           name='map-search'
                           type='material-community'
                           size={30}
-                          // onPress={() => navigation.navigate('Mapa')}
+                          onPress={isEditing ? null : handleOpenModal}
                         />
                       }
                       disabled={isEditing}
@@ -477,34 +552,66 @@ function EventDetailsScreen({ navigation }) {
                     </MapView>
                   </View>
                 )} */}
-                {item.selectedLocation && (
-                  <View style={styles.mapContainer}>
-                    <MapView
-                      provider='google'
-                      style={styles.map}
-                      initialRegion={coordinates}
-                      ref={mapRef}
-                    >
-                      <Marker coordinate={coordinates} title='Ave Frate!' />
-                      <Callout tooltip>
-                        <View style={styles.calloutContainer}>
-                          <Text
-                            style={styles.calloutText}
-                            onPress={() => {
-                              setIsVisible(true);
-                            }}
-                          >
-                            Abrir en mapa
-                          </Text>
-                        </View>
-                      </Callout>
-                    </MapView>
-                  </View>
-                )}
+                <View style={styles.mapContainer}>
+                  <MapView
+                    provider='google'
+                    style={styles.map}
+                    initialRegion={
+                      isEditing
+                        ? coordinates
+                        : selLocation
+                        ? selLocation.coordinates
+                        : coordinates
+                    }
+                    ref={mapRef}
+                  >
+                    <Marker
+                      title='Ave Frate!'
+                      coordinate={
+                        isEditing
+                          ? coordinates
+                          : selLocation
+                          ? selLocation.coordinates
+                          : coordinates
+                      }
+                    />
+                    <Callout tooltip>
+                      <View style={styles.calloutContainer}>
+                        <Text
+                          style={styles.calloutText}
+                          onPress={() => {
+                            setIsVisible(true);
+                          }}
+                        >
+                          Abrir en mapa
+                        </Text>
+                      </View>
+                    </Callout>
+                  </MapView>
+                </View>
               </View>
-              {/* <View style={styles.container}>
-                <View style={styles.rowContainer}>
-                  <View style={styles.calendarTimeContainer}>
+              <View style={styles.container}>
+                <View style={{ flex: 1 }}>
+                  {isEditing ? (
+                    <Button
+                      title='Editar'
+                      buttonStyle={{
+                        backgroundColor: '#002366',
+                        borderRadius: 20,
+                      }}
+                      onPress={handleEditButtonClick}
+                    />
+                  ) : (
+                    <Button
+                      title='Confirmar'
+                      buttonStyle={{
+                        backgroundColor: '#002366',
+                        borderRadius: 20,
+                      }}
+                      onPress={handleSubmit}
+                    />
+                  )}
+                  {/* <View style={styles.calendarTimeContainer}>
                     <Button
                       title='Crear'
                       buttonStyle={{
@@ -523,14 +630,14 @@ function EventDetailsScreen({ navigation }) {
                       }}
                       onPress={resetForm}
                     />
-                  </View>
+                  </View> */}
                 </View>
                 {isLoading && (
                   <View style={styles.activityLoading}>
                     <ActivityIndicator size='large' color='#0000ff' />
                   </View>
                 )}
-              </View> */}
+              </View>
               <View style={{ flex: 1 }}>
                 <BottomSheet isVisible={isVisible}>
                   <View style={styles.buttonContainer}>
@@ -557,6 +664,10 @@ function EventDetailsScreen({ navigation }) {
               </View>
             </Card>
           </View>
+          <MapComponent
+            isVisible={isModalVisible}
+            closeModal={handleCloseModal}
+          />
         </ScrollView>
       )}
     </Formik>

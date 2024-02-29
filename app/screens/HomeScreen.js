@@ -76,7 +76,7 @@ function HomeScreen({ navigation }) {
           <Card.Image
             source={{ uri: item.imageUrl }}
             style={{ height: 200, borderRadius: 10 }}
-            PlaceholderContent={<ActivityIndicator />}
+            // PlaceholderContent={<ActivityIndicator />}
           />
         </TouchableOpacity>
         <View style={styles.container}>
@@ -88,7 +88,7 @@ function HomeScreen({ navigation }) {
         <View style={styles.container}>
           <View style={{ height: 80 }}>
             <ScrollView>
-              <Text style={{ textAlign: 'justify', fontSize: 14 }}>
+              <Text style={{ textAlign: 'justify', fontSize: 16 }}>
                 {item.description}
               </Text>
             </ScrollView>
@@ -99,10 +99,10 @@ function HomeScreen({ navigation }) {
             <Icon
               name='place'
               type='material' // Adjust the icon library if needed
-              size={18}
+              size={24}
               color='black'
             />
-            <Text style={{ textAlign: 'justify', fontSize: 14, margin: 7 }}>
+            <Text style={{ textAlign: 'justify', fontSize: 16, flex: 1 }}>
               {item.locationAddress}
             </Text>
           </View>
