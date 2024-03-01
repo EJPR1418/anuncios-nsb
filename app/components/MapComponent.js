@@ -56,7 +56,11 @@ function MapComponent({ isVisible, closeModal, cancelModal }) {
     cancelModal();
   };
   return (
-    <Modal visible={isVisible} onBackdropPress={closeModal} x>
+    <Modal
+      visible={isVisible}
+      onBackdropPress={closeModal}
+      animationType='slide'
+    >
       <SafeAreaView style={styles.container}>
         <GooglePlacesAutocomplete
           keepResultsAfterBlur={true}

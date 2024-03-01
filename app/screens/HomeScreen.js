@@ -8,9 +8,10 @@ import {
   FlatList,
   Dimensions,
   ActivityIndicator,
+  Modal,
 } from 'react-native';
 import { Card, Text, Button, Image, Divider, Icon } from '@rneui/themed';
-import Modal from 'react-native-modal';
+// import Modal from 'react-native-modal';
 import { db } from '../firebase/firebase';
 // import { fetchEvent } from '../firebase/helpers';
 import { ref as dRef, query, orderByChild, onValue } from 'firebase/database';
@@ -117,25 +118,20 @@ function HomeScreen({ navigation }) {
         </View>
       </Card>
       <Modal
-        isVisible={isModalVisible}
+        visible={isModalVisible}
+        animationType='slide'
+        // onRequestClose={}
         // onBackdropPress={toggleModal}
-        // onBackButtonPress={toggleModal}
-        backdropColor='black'
-        // animationIn='slideInUp'
-        // animationOut='slideOutDown'
-        // hideModalContentWhileAnimating={true}
-        onSwipeComplete={toggleModal}
-        swipeDirection='up'
       >
         <View style={styles.modalContainer}>
-          {/* <TouchableOpacity onPress={toggleModal}> */}
-          <Image
-            source={{ uri: imageFullScreen }}
-            style={{ height: deviceHeight, width: deviceWidth }}
-            resizeMode='contain'
-            PlaceholderContent={<ActivityIndicator />}
-          />
-          {/* </TouchableOpacity> */}
+          <TouchableOpacity onPress={toggleModal}>
+            <Image
+              source={{ uri: imageFullScreen }}
+              style={{ height: deviceHeight, width: deviceWidth }}
+              resizeMode='contain'
+              PlaceholderContent={<ActivityIndicator />}
+            />
+          </TouchableOpacity>
         </View>
       </Modal>
     </View>
@@ -216,6 +212,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'black',
   },
 });
 
