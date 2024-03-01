@@ -211,40 +211,40 @@ function EventDetailsScreen({ navigation }) {
 
   const confirmEdit = async (values) => {
     console.log(values);
-    // try {
-    //   setIsLoading(true);
+    try {
+      setIsLoading(true);
 
-    //   if (imageBlob && localFileName) {
-    //     const storage = getStorage();
-    //     const storageRef = sRef(storage, `events/${localFileName}`);
-    //     uploadBytes(storageRef, imageBlob);
-    //   }
+      if (imageBlob && localFileName) {
+        const storage = getStorage();
+        const storageRef = sRef(storage, `events/${localFileName}`);
+        uploadBytes(storageRef, imageBlob);
+      }
 
-    //   const editedBy = auth.currentUser;
-    //   const editedDate = new Date();
-    //   const fileName = localFileName;
+      const editedBy = auth.currentUser.uid;
+      const editedDate = new Date();
+      const fileName = localFileName;
 
-    //   const postValues = {
-    //     ...values,
-    //     selectedLocation,
-    //     editedBy,
-    //     editedDate,
-    //     fileName,
-    //   };
+      const postValues = {
+        ...values,
+        selectedLocation,
+        editedBy,
+        editedDate,
+        fileName,
+      };
 
-    //   // TODO - Update by id
-    //   console.log(postValues);
-    //   push(dRef(db, 'nsb/events'), postValues);
-    //   formikRef.current.resetForm();
-    //   // const popAction = StackActions.pop(1);
+      // TODO - Update by id
+      console.log(postValues);
+      // push(dRef(db, 'nsb/events'), postValues);
+      // formikRef.current.resetForm();
+      // const popAction = StackActions.pop(1);
 
-    //   // navigation.dispatch(popAction);
-    // } catch (ex) {
-    //   console.log(ex);
-    // } finally {
-    //   setIsLoading(false);
-    //   alert('Evento Editado');
-    // }
+      // navigation.dispatch(popAction);
+    } catch (ex) {
+      console.log(ex);
+    } finally {
+      setIsLoading(false);
+      alert('Evento Editado');
+    }
   };
 
   return (

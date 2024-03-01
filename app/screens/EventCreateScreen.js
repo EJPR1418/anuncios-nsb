@@ -98,7 +98,7 @@ function EventCreateScreen({ navigation }) {
         const storageRef = sRef(storage, `events/${localFileName}`);
         uploadBytes(storageRef, imageBlob);
       }
-      const createdBy = auth.currentUser.providerId;
+      const createdBy = auth.currentUser.uid;
       const createdDate = new Date();
       const fileName = localFileName;
 
