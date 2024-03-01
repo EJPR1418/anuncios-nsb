@@ -73,7 +73,7 @@ function EventDetailsScreen({ navigation }) {
   const firstUpdate = useRef(true);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [selLocation, setSelLocation] = useState();
+  const [selectedLocation, setSelectedLocation] = useState();
 
   const handleOpenModal = () => {
     setIsModalVisible(true);
@@ -84,34 +84,16 @@ function EventDetailsScreen({ navigation }) {
     formikRef.current.setFieldValue('locationAddress', location.name);
     mapRef.current?.animateToRegion(location.coordinates);
     console.log(location);
-    setSelLocation(location);
+    setSelectedLocation(location);
   };
 
-  // useEffect(() => {
-  //   console.log(item);
-  //   if (selectedLocation) {
-  //     formikRef.current.setFieldValue('locationAddress', selectedLocation.name);
-  //     if (firstUpdate.current) {
-  //       firstUpdate.current = false;
-  //       return;
-  //     }
-  //     mapRef.current?.animateToRegion(selectedLocation.coordinates);
-  //   }
-  // }, [selectedLocation, formikRef, mapRef]);
+  const handleCancelModal = () => {
+    setIsModalVisible(false);
+  };
 
   useEffect(() => {
     console.log(item);
     setImage({ uri: item.imageUrl });
-    //console.log(selectedLocation);
-    // if (selectedLocation) {
-    //   console.log('ENTREE');
-    //   formikRef.current.setFieldValue('locationAddress', selectedLocation.name);
-    //   mapRef.current?.animateToRegion(selectedLocation.coordinates);
-    // if (firstUpdate.current) {
-    //   firstUpdate.current = false;
-    //   return;
-    // }
-    // }
     // const getImage = async () => {
     //   if (!item.fileName) return;
     //   const storage = getStorage();
@@ -163,17 +145,31 @@ function EventDetailsScreen({ navigation }) {
   };
 
   const openGoogleMaps = () => {
-    const { latitude, longitude } = coordinates;
-    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
-    Linking.openURL(googleMapsUrl);
-    setIsVisible(false);
+    if (!isEditing && selectedLocation) {
+      const { coordinates } = selectedLocation;
+      const appleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${coordinates.latitude},${coordinates.longitude}`;
+      Linking.openURL(appleMapsUrl);
+      setIsVisible(false);
+    } else {
+      const { latitude, longitude } = coordinates;
+      const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+      Linking.openURL(googleMapsUrl);
+      setIsVisible(false);
+    }
   };
 
   const openAppleMaps = () => {
-    const { latitude, longitude } = coordinates;
-    const appleMapsUrl = `http://maps.apple.com/?ll=${latitude},${longitude}`;
-    Linking.openURL(appleMapsUrl);
-    setIsVisible(false);
+    if (!isEditing && selectedLocation) {
+      const { coordinates } = selectedLocation;
+      const appleMapsUrl = `http://maps.apple.com/?ll=${coordinates.latitude},${coordinates.longitude}`;
+      Linking.openURL(appleMapsUrl);
+      setIsVisible(false);
+    } else {
+      const { latitude, longitude } = coordinates;
+      const appleMapsUrl = `http://maps.apple.com/?ll=${latitude},${longitude}`;
+      Linking.openURL(appleMapsUrl);
+      setIsVisible(false);
+    }
   };
 
   // const onSubmit = async (values) => {
@@ -559,8 +555,8 @@ function EventDetailsScreen({ navigation }) {
                     initialRegion={
                       isEditing
                         ? coordinates
-                        : selLocation
-                        ? selLocation.coordinates
+                        : selectedLocation
+                        ? selectedLocation.coordinates
                         : coordinates
                     }
                     ref={mapRef}
@@ -570,8 +566,8 @@ function EventDetailsScreen({ navigation }) {
                       coordinate={
                         isEditing
                           ? coordinates
-                          : selLocation
-                          ? selLocation.coordinates
+                          : selectedLocation
+                          ? selectedLocation.coordinates
                           : coordinates
                       }
                     />
@@ -667,6 +663,7 @@ function EventDetailsScreen({ navigation }) {
           <MapComponent
             isVisible={isModalVisible}
             closeModal={handleCloseModal}
+            cancelModal={handleCancelModal}
           />
         </ScrollView>
       )}

@@ -15,7 +15,7 @@ import PropTypes from 'prop-types';
 
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
-function MapComponent({ isVisible, closeModal }) {
+function MapComponent({ isVisible, closeModal, cancelModal }) {
   // const navigation = useNavigation();
 
   const deviceWidth = Dimensions.get('window').width;
@@ -50,12 +50,10 @@ function MapComponent({ isVisible, closeModal }) {
   };
 
   const handleSetLocation = () => {
-    // navigation.navigate('Crear_Evento', {
-    //   selectedLocation: selectedLocation,
-    // });
-    // console.log(selectedLocation);
-    // navigation.goBack(null, selectedLocation);
     closeModal(selectedLocation);
+  };
+  const handleCancel = () => {
+    cancelModal();
   };
   return (
     <Modal visible={isVisible} onBackdropPress={closeModal} x>
@@ -108,12 +106,25 @@ function MapComponent({ isVisible, closeModal }) {
             />
           )}
         </MapView>
-        {selectedLocation && (
+        {selectedLocation ? (
           <View style={styles.buttonContainer}>
             <Button
               title='Añadir'
               onPress={handleSetLocation}
               buttonStyle={styles.setButton}
+            />
+            <Button
+              title='Cancelar'
+              onPress={handleCancel}
+              buttonStyle={styles.setCancelButton}
+            />
+          </View>
+        ) : (
+          <View style={styles.buttonContainer}>
+            <Button
+              title='Cancelar'
+              onPress={handleCancel}
+              buttonStyle={styles.setCancelButton}
             />
           </View>
         )}
@@ -125,6 +136,7 @@ function MapComponent({ isVisible, closeModal }) {
 MapComponent.propTypes = {
   isVisible: PropTypes.bool.isRequired,
   closeModal: PropTypes.func.isRequired,
+  cancelModal: PropTypes.func,
 };
 
 export default MapComponent;
@@ -147,11 +159,16 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 40,
     alignSelf: 'center',
+    width: Dimensions.get('window').width,
   },
 
   setButton: {
-    backgroundColor: 'blue',
-    // padding: 10,
-    borderRadius: 20,
+    backgroundColor: '#002366',
+    flex: 1,
+    marginBottom: 10,
+  },
+  setCancelButton: {
+    backgroundColor: 'red',
+    flex: 1,
   },
 });
