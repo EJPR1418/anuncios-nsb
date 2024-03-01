@@ -103,7 +103,7 @@ function HomeScreen({ navigation }) {
               size={24}
               color='black'
             />
-            <Text style={{ textAlign: 'justify', fontSize: 16, flex: 1 }}>
+            <Text style={{ textAlign: 'left', fontSize: 16, flex: 1 }}>
               {item.locationAddress}
             </Text>
           </View>

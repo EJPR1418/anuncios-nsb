@@ -21,7 +21,7 @@ import MapView, { Marker, Callout } from 'react-native-maps';
 import { useRoute } from '@react-navigation/native';
 import { Formik } from 'formik';
 import { db, auth } from '../firebase/firebase';
-import { ref as dRef, push } from 'firebase/database';
+import { ref as dRef, push, update } from 'firebase/database';
 import {
   getStorage,
   uploadBytes,
@@ -221,12 +221,14 @@ function EventDetailsScreen({ navigation }) {
       }
 
       const editedBy = auth.currentUser.uid;
-      const editedDate = new Date();
+      const editedDate = new Date().getDate();
       const fileName = localFileName;
 
       const postValues = {
         ...values,
-        selectedLocation,
+        selectedLocation: selectedLocation
+          ? selectedLocation
+          : item.selectedLocation,
         editedBy,
         editedDate,
         fileName,
@@ -234,11 +236,11 @@ function EventDetailsScreen({ navigation }) {
 
       // TODO - Update by id
       console.log(postValues);
-      // push(dRef(db, 'nsb/events'), postValues);
+      update(dRef(db, `nsb/events/${item.id}`), postValues);
       // formikRef.current.resetForm();
-      // const popAction = StackActions.pop(1);
+      const popAction = StackActions.pop(1);
 
-      // navigation.dispatch(popAction);
+      navigation.dispatch(popAction);
     } catch (ex) {
       console.log(ex);
     } finally {
