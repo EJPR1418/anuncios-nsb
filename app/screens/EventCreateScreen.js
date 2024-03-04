@@ -21,7 +21,12 @@ import { useRoute } from '@react-navigation/native';
 import { Formik } from 'formik';
 import { db, auth } from '../firebase/firebase';
 import { ref as dRef, push } from 'firebase/database';
-import { getStorage, uploadBytes, ref as sRef } from 'firebase/storage';
+import {
+  getStorage,
+  uploadBytes,
+  ref as sRef,
+  getDownloadURL,
+} from 'firebase/storage';
 
 import PropTypes from 'prop-types';
 import * as ImagePicker from 'expo-image-picker';
@@ -140,27 +145,24 @@ function EventCreateScreen({ navigation }) {
   const onSubmit = async (values) => {
     try {
       setIsLoading(true);
-
+      let imageUrl = '';
       if (imageBlob && localFileName) {
-        // formikRef.current.setFieldValue('imageName', localFileName);
         const storage = getStorage();
         const storageRef = sRef(storage, `events/${localFileName}`);
-        uploadBytes(storageRef, imageBlob);
+        await uploadBytes(storageRef, imageBlob);
+        imageUrl = await getDownloadURL(storageRef);
       }
       const createdBy = auth.currentUser.uid;
       const createdDate = new Date();
-      const fileName = localFileName;
-
-      // formikRef.current.setFieldValue('createdBy', auth.currentUser);
-      // formikRef.current.setFieldValue('createdDate', new Date());
-      // formikRef.current.setFieldValue('fileName', localFileName);
+      // const fileName = localFileName;
 
       const postValues = {
         ...values,
         selectedLocation,
         createdBy,
         createdDate,
-        fileName,
+        // fileName,
+        imageUrl,
       };
 
       // console.log(auth.currentUser);
@@ -267,6 +269,7 @@ function EventCreateScreen({ navigation }) {
                     <Text style={styles.labelStyle}>Tipo</Text>
 
                     <DropdownComponent
+                      editable={false}
                       data={typeFraterno}
                       selected={values.type}
                       onSelect={(tipo) => {
@@ -284,6 +287,7 @@ function EventCreateScreen({ navigation }) {
                     <Text style={styles.labelStyle}>Vestimenta</Text>
 
                     <DropdownComponent
+                      editable={false}
                       data={clothingStyle}
                       selected={values.clothing}
                       onSelect={(clothing) => {
@@ -304,6 +308,7 @@ function EventCreateScreen({ navigation }) {
                 <Text style={styles.labelStyle}>Organizador</Text>
 
                 <MultipleDropdownComponent
+                  editable={false}
                   data={fraternityList}
                   selected={values.organizers}
                   onSelect={(organizers) => {

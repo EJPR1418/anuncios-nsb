@@ -202,16 +202,18 @@ function EventDetailsScreen({ navigation }) {
     console.log(values);
     try {
       setIsLoading(true);
+      let imageUrl = '';
 
       if (imageBlob && localFileName) {
         const storage = getStorage();
         const storageRef = sRef(storage, `events/${localFileName}`);
-        uploadBytes(storageRef, imageBlob);
+        await uploadBytes(storageRef, imageBlob);
+        imageUrl = await getDownloadURL(storageRef);
       }
 
       const editedBy = auth.currentUser.uid;
       const editedDate = new Date().getDate();
-      const fileName = localFileName;
+      // const fileName = localFileName;
 
       const postValues = {
         ...values,
@@ -220,7 +222,7 @@ function EventDetailsScreen({ navigation }) {
           : item.selectedLocation,
         editedBy,
         editedDate,
-        fileName,
+        imageUrl,
       };
 
       // TODO - Update by id

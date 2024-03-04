@@ -39,18 +39,18 @@ function HomeScreen({ navigation }) {
           ...dataVal[key],
         }));
 
-        const storage = getStorage();
-        dataArr.forEach(async (item) => {
-          const fileName = !item.fileName ? 'escudo_nsb.jpg' : item.fileName;
-          const imageRef = sRef(storage, `events/${fileName}`);
+        // const storage = getStorage();
+        // dataArr.forEach(async (item) => {
+        //   const fileName = !item.fileName ? 'escudo_nsb.jpg' : item.fileName;
+        //   const imageRef = sRef(storage, `events/${fileName}`);
 
-          try {
-            const url = await getDownloadURL(imageRef);
-            item.imageUrl = url;
-          } catch (error) {
-            console.error('Error fetching image:', error);
-          }
-        });
+        //   try {
+        //     const url = await getDownloadURL(imageRef);
+        //     item.imageUrl = url;
+        //   } catch (error) {
+        //     console.error('Error fetching image:', error);
+        //   }
+        // });
         console.log(dataArr);
         setData(dataArr);
       } else {
@@ -117,12 +117,7 @@ function HomeScreen({ navigation }) {
           />
         </View>
       </Card>
-      <Modal
-        visible={isModalVisible}
-        animationType='slide'
-        // onRequestClose={}
-        // onBackdropPress={toggleModal}
-      >
+      <Modal visible={isModalVisible} animationType='slide'>
         <View style={styles.modalContainer}>
           <TouchableOpacity onPress={toggleModal}>
             <Image
