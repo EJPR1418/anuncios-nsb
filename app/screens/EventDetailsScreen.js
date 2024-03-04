@@ -567,8 +567,8 @@ function EventDetailsScreen({ navigation }) {
           </View>
           <View style={styles.activityLoading}>
             <Dialog isVisible={isLoading}>
-              <Dialog.Title title='Creando Evento...' />
               <Dialog.Loading loadingStyle={{ color: '#002366' }} />
+              <Dialog.Title title='Editando Evento...' />
             </Dialog>
           </View>
           <MapComponent

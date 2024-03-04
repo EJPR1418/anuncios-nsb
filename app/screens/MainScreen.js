@@ -71,6 +71,7 @@ const Root = () => {
         }}
       />
       <Drawer.Screen
+        detachInactiveScreens={false}
         name='Crear_Evento'
         component={EventCreateScreen}
         options={{
