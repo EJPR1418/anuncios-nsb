@@ -173,9 +173,9 @@ function EventCreateScreen({ navigation }) {
 
       // navigation.dispatch(popAction);
     } catch (ex) {
+      setIsLoading(false);
       console.log(ex);
       alert(ex);
-      setIsLoading(false);
       return;
     } finally {
       setIsLoading(false);

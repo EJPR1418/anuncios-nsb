@@ -190,6 +190,7 @@ function EventDetailsScreen({ navigation }) {
 
       navigation.dispatch(popAction);
     } catch (ex) {
+      setIsLoading(false);
       console.log(ex);
     } finally {
       setIsLoading(false);
