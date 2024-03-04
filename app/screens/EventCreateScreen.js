@@ -1,6 +1,20 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
-import { ScrollView, StyleSheet, View, ActivityIndicator } from 'react-native';
-import { Card, Input, Text, Button, Icon, CheckBox } from '@rneui/themed';
+import {
+  ScrollView,
+  StyleSheet,
+  View,
+  ActivityIndicator,
+  Linking,
+} from 'react-native';
+import {
+  Card,
+  Input,
+  Text,
+  Button,
+  Icon,
+  CheckBox,
+  BottomSheet,
+} from '@rneui/themed';
 
 import MapView, { Marker, Callout } from 'react-native-maps';
 import { useRoute } from '@react-navigation/native';
@@ -77,6 +91,20 @@ function EventCreateScreen({ navigation }) {
 
   const handleCancelModal = () => {
     setIsModalVisible(false);
+  };
+
+  const openGoogleMaps = () => {
+    const { latitude, longitude } = selectedLocation.coordinates;
+    const appleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+    Linking.openURL(appleMapsUrl);
+    setIsVisible(false);
+  };
+
+  const openAppleMaps = () => {
+    const { latitude, longitude } = selectedLocation.coordinates;
+    const appleMapsUrl = `http://maps.apple.com/?ll=${latitude},${longitude}`;
+    Linking.openURL(appleMapsUrl);
+    setIsVisible(false);
   };
 
   const pickImage = async () => {
@@ -484,6 +512,30 @@ function EventCreateScreen({ navigation }) {
                   </View>
                 )}
               </View>
+              <View style={{ flex: 1 }}>
+                <BottomSheet isVisible={isVisible}>
+                  <View style={styles.buttonContainer}>
+                    <Button
+                      title='Abrir en Google Maps'
+                      onPress={openGoogleMaps}
+                      buttonStyle={styles.button}
+                      titleStyle={styles.buttonTitle}
+                    />
+                    <Button
+                      title='Abrir en Apple Maps'
+                      onPress={openAppleMaps}
+                      buttonStyle={styles.button}
+                      titleStyle={styles.buttonTitle}
+                    />
+                    <Button
+                      title='Cancelar'
+                      onPress={() => setIsVisible(false)}
+                      buttonStyle={[styles.button, styles.cancelButton]}
+                      titleStyle={styles.buttonTitle}
+                    />
+                  </View>
+                </BottomSheet>
+              </View>
             </Card>
           </View>
           <MapComponent
@@ -601,6 +653,21 @@ const styles = StyleSheet.create({
   calloutText: {
     fontSize: 16,
     color: 'blue',
+  },
+  buttonContainer: {
+    alignItems: 'stretch',
+    justifyContent: 'center',
+    marginVertical: 20,
+  },
+  button: {
+    marginVertical: 5,
+    backgroundColor: '#002366', // Set your button background color here
+  },
+  buttonTitle: {
+    fontSize: 16,
+  },
+  cancelButton: {
+    backgroundColor: 'red', // Set your cancel button background color here
   },
 });
 

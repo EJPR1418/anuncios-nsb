@@ -67,10 +67,9 @@ function EventDetailsScreen({ navigation }) {
   const [isLoading, setIsLoading] = useState(false);
   const [image, setImage] = useState(null); //https://picsum.photos/700
   const [localFileName, setlocalFileName] = useState(null);
+
   const [imageBlob, setImageBlob] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
-
-  const firstUpdate = useRef(true);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState();
@@ -94,16 +93,6 @@ function EventDetailsScreen({ navigation }) {
   useEffect(() => {
     console.log(item);
     setImage({ uri: item.imageUrl });
-    // const getImage = async () => {
-    //   if (!item.fileName) return;
-    //   const storage = getStorage();
-    //   const reference = sRef(storage, `events/${item.fileName}`);
-    //   await getDownloadURL(reference).then((url) => {
-    //     setImage({ uri: url });
-    //   });
-    // };
-
-    // getImage();
   }, []);
 
   const handleEditButtonClick = () => {
