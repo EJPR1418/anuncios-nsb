@@ -14,6 +14,7 @@ import {
   Icon,
   CheckBox,
   BottomSheet,
+  Dialog,
 } from '@rneui/themed';
 
 import MapView, { Marker, Callout } from 'react-native-maps';
@@ -62,7 +63,6 @@ function EventCreateScreen({ navigation }) {
     { label: 'Capitulo Omicron', value: '3' },
   ];
 
-  const firstUpdate = useRef(true);
   useEffect(() => {
     // if (selectedLocation) {
     //   formikRef.current.setFieldValue('locationAddress', selectedLocation.name);
@@ -144,9 +144,11 @@ function EventCreateScreen({ navigation }) {
 
   const onSubmit = async (values) => {
     try {
+      console.log(values);
       setIsLoading(true);
       let imageUrl = '';
       if (imageBlob && localFileName) {
+        console.log('entre');
         const storage = getStorage();
         const storageRef = sRef(storage, `events/${localFileName}`);
         await uploadBytes(storageRef, imageBlob);
@@ -161,11 +163,9 @@ function EventCreateScreen({ navigation }) {
         selectedLocation,
         createdBy,
         createdDate,
-        // fileName,
         imageUrl,
       };
 
-      // console.log(auth.currentUser);
       console.log(postValues);
       push(dRef(db, 'nsb/events'), postValues);
       formikRef.current.resetForm();
@@ -175,6 +175,7 @@ function EventCreateScreen({ navigation }) {
     } catch (ex) {
       console.log(ex);
       alert(ex);
+      setIsLoading(false);
       return;
     } finally {
       setIsLoading(false);
@@ -511,11 +512,6 @@ function EventCreateScreen({ navigation }) {
                     />
                   </View>
                 </View>
-                {isLoading && (
-                  <View style={styles.activityLoading}>
-                    <ActivityIndicator size='large' color='#0000ff' />
-                  </View>
-                )}
               </View>
               <View style={{ flex: 1 }}>
                 <BottomSheet isVisible={isVisible}>
@@ -542,6 +538,12 @@ function EventCreateScreen({ navigation }) {
                 </BottomSheet>
               </View>
             </Card>
+          </View>
+          <View style={styles.activityLoading}>
+            <Dialog isVisible={isLoading}>
+              <Dialog.Title title='Editando Evento...' />
+              <Dialog.Loading loadingStyle={{ color: '#002366' }} />
+            </Dialog>
           </View>
           <MapComponent
             isVisible={isModalVisible}
@@ -640,11 +642,7 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   activityLoading: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },

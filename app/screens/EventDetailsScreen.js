@@ -65,7 +65,7 @@ function EventDetailsScreen({ navigation }) {
   ];
 
   const [isLoading, setIsLoading] = useState(false);
-  const [image, setImage] = useState(null); //https://picsum.photos/700
+  const [image, setImage] = useState({ uri: item.imageUrl }); //https://picsum.photos/700
   const [localFileName, setlocalFileName] = useState(null);
 
   const [imageBlob, setImageBlob] = useState(null);
@@ -92,7 +92,7 @@ function EventDetailsScreen({ navigation }) {
 
   useEffect(() => {
     console.log(item);
-    setImage({ uri: item.imageUrl });
+    // setImage({ uri: item.imageUrl });
   }, []);
 
   const handleEditButtonClick = () => {
@@ -183,7 +183,6 @@ function EventDetailsScreen({ navigation }) {
         imageUrl,
       };
 
-      // TODO - Update by id
       console.log(postValues);
       update(dRef(db, `nsb/events/${item.id}`), postValues);
       // formikRef.current.resetForm();
@@ -214,9 +213,6 @@ function EventDetailsScreen({ navigation }) {
         endDate: item ? item.endDate : '',
         endTime: item ? item.endTime : '',
         locationAddress: item ? item.locationAddress : '',
-        // fileName: item ? item.locationAddress : '',
-        // createdBy: '',
-        // createdDate: '',
         editedBy: '',
         editedDate: '',
       }}
@@ -542,11 +538,6 @@ function EventDetailsScreen({ navigation }) {
                     />
                   )}
                 </View>
-                {isLoading && (
-                  <View style={styles.activityLoading}>
-                    <ActivityIndicator size='large' color='#0000ff' />
-                  </View>
-                )}
               </View>
               <View style={{ flex: 1 }}>
                 <BottomSheet isVisible={isVisible}>
@@ -573,6 +564,12 @@ function EventDetailsScreen({ navigation }) {
                 </BottomSheet>
               </View>
             </Card>
+          </View>
+          <View style={styles.activityLoading}>
+            <Dialog isVisible={isLoading}>
+              <Dialog.Title title='Creando Evento...' />
+              <Dialog.Loading loadingStyle={{ color: '#002366' }} />
+            </Dialog>
           </View>
           <MapComponent
             isVisible={isModalVisible}
@@ -671,11 +668,8 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   activityLoading: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
+    position: '',
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
