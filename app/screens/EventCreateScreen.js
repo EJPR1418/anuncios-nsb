@@ -61,6 +61,7 @@ function EventCreateScreen({ navigation }) {
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState();
+  const [isVisible, setIsVisible] = useState(false);
 
   const handleOpenModal = () => {
     setIsModalVisible(true);
@@ -415,7 +416,7 @@ function EventCreateScreen({ navigation }) {
                           name='map-search'
                           type='material-community'
                           size={30}
-                          onPress={isEditing ? null : handleOpenModal}
+                          onPress={handleOpenModal}
                         />
                       }
                     />
