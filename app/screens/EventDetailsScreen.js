@@ -99,11 +99,6 @@ function EventDetailsScreen({ navigation }) {
     setIsEditing(!isEditing);
   };
 
-  const handleConfirmButtonClick = () => {
-    // Logic to save updated details
-    setIsEditing(false);
-  };
-
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -160,43 +155,6 @@ function EventDetailsScreen({ navigation }) {
       setIsVisible(false);
     }
   };
-
-  // const onSubmit = async (values) => {
-  //   try {
-  //     setIsLoading(true);
-
-  //     if (imageBlob && localFileName) {
-  //       const storage = getStorage();
-  //       const storageRef = sRef(storage, `events/${localFileName}`);
-  //       uploadBytes(storageRef, imageBlob);
-  //     }
-
-  //     const editedBy = auth.currentUser;
-  //     const editedDate = new Date();
-  //     const fileName = localFileName;
-
-  //     const postValues = {
-  //       ...values,
-  //       selectedLocation,
-  //       editedBy,
-  //       editedDate,
-  //       fileName,
-  //     };
-
-  //     // TODO - Update by id
-  //     console.log(postValues);
-  //     push(dRef(db, 'nsb/events'), postValues);
-  //     formikRef.current.resetForm();
-  //     // const popAction = StackActions.pop(1);
-
-  //     // navigation.dispatch(popAction);
-  //   } catch (ex) {
-  //     console.log(ex);
-  //   } finally {
-  //     setIsLoading(false);
-  //     alert('Evento Creado');
-  //   }
-  // };
 
   const confirmEdit = async (values) => {
     console.log(values);
@@ -427,7 +385,6 @@ function EventDetailsScreen({ navigation }) {
                   >
                     Fecha de Inicio
                   </Text>
-                  {/* <Divider /> */}
                 </View>
                 <View style={styles.rowContainer}>
                   <View style={styles.calendarTimeContainer}>
@@ -470,7 +427,6 @@ function EventDetailsScreen({ navigation }) {
                   >
                     Fecha de Culminacion
                   </Text>
-                  {/* <Divider /> */}
                 </View>
                 <View style={styles.rowContainer}>
                   <View style={styles.calendarTimeContainer}>
@@ -526,21 +482,6 @@ function EventDetailsScreen({ navigation }) {
                     )}
                   </View>
                 </View>
-                {/* {selectedLocation && (
-                  <View style={styles.mapContainer}>
-                    <MapView
-                      provider='google'
-                      style={styles.map}
-                      initialRegion={selectedLocation.coordinates}
-                      ref={mapRef}
-                    >
-                      <Marker
-                        coordinate={selectedLocation.coordinates}
-                        title='Ave Frate!'
-                      />
-                    </MapView>
-                  </View>
-                )} */}
                 <View style={styles.mapContainer}>
                   <MapView
                     provider='google'
@@ -600,26 +541,6 @@ function EventDetailsScreen({ navigation }) {
                       onPress={handleSubmit}
                     />
                   )}
-                  {/* <View style={styles.calendarTimeContainer}>
-                    <Button
-                      title='Crear'
-                      buttonStyle={{
-                        backgroundColor: '#002366',
-                        borderRadius: 20,
-                      }}
-                      onPress={handleSubmit}
-                    />
-                  </View>
-                  <View style={styles.calendarTimeContainer}>
-                    <Button
-                      title='Limpiar'
-                      buttonStyle={{
-                        backgroundColor: '#002366',
-                        borderRadius: 20,
-                      }}
-                      onPress={resetForm}
-                    />
-                  </View> */}
                 </View>
                 {isLoading && (
                   <View style={styles.activityLoading}>
