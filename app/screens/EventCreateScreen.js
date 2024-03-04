@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { ScrollView, StyleSheet, View, ActivityIndicator } from 'react-native';
 import { Card, Input, Text, Button, Icon, CheckBox } from '@rneui/themed';
 
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Callout } from 'react-native-maps';
 import { useRoute } from '@react-navigation/native';
 import { Formik } from 'formik';
 import { db, auth } from '../firebase/firebase';
@@ -17,12 +17,13 @@ import DropdownComponent from '../components/DropdownComponent';
 import CurrencyInput from '../components/CurrencyInputComponent';
 import CalendarInputComponent from '../components/CalendarInputComponent';
 import EventsSchema from '../schemas/EventSchema';
+import MapComponent from '../components/MapComponent';
 
 function EventCreateScreen({ navigation }) {
-  const route = useRoute();
+  // const route = useRoute();
   const mapRef = useRef();
   const formikRef = useRef();
-  const { selectedLocation } = route.params || {};
+  // const { selectedLocation } = route.params || {};
 
   const [isEditing, setIsEditing] = useState(true);
 
@@ -44,19 +45,38 @@ function EventCreateScreen({ navigation }) {
 
   const firstUpdate = useRef(true);
   useEffect(() => {
-    if (selectedLocation) {
-      formikRef.current.setFieldValue('locationAddress', selectedLocation.name);
-      if (firstUpdate.current) {
-        firstUpdate.current = false;
-        return;
-      }
-      mapRef.current?.animateToRegion(selectedLocation.coordinates);
-    }
-  }, [selectedLocation, formikRef, mapRef]);
+    // if (selectedLocation) {
+    //   formikRef.current.setFieldValue('locationAddress', selectedLocation.name);
+    //   if (firstUpdate.current) {
+    //     firstUpdate.current = false;
+    //     return;
+    //   }
+    //   mapRef.current?.animateToRegion(selectedLocation.coordinates);
+    // }
+  }, []);
   const [isLoading, setIsLoading] = useState(false);
   const [image, setImage] = useState(require('../assets/escudo_nsb.jpg')); //https://picsum.photos/700
   const [localFileName, setLocalFileName] = useState(null);
   const [imageBlob, setImageBlob] = useState(null);
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState();
+
+  const handleOpenModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleCloseModal = (location) => {
+    setIsModalVisible(false);
+    formikRef.current.setFieldValue('locationAddress', location.name);
+    mapRef.current?.animateToRegion(location.coordinates);
+    console.log(location);
+    setSelectedLocation(location);
+  };
+
+  const handleCancelModal = () => {
+    setIsModalVisible(false);
+  };
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
@@ -395,7 +415,7 @@ function EventCreateScreen({ navigation }) {
                           name='map-search'
                           type='material-community'
                           size={30}
-                          onPress={() => navigation.navigate('Mapa')}
+                          onPress={isEditing ? null : handleOpenModal}
                         />
                       }
                     />
@@ -406,7 +426,7 @@ function EventCreateScreen({ navigation }) {
                     )}
                   </View>
                 </View>
-                {selectedLocation && (
+                {selectedLocation ? (
                   <View style={styles.mapContainer}>
                     <MapView
                       provider='google'
@@ -418,9 +438,21 @@ function EventCreateScreen({ navigation }) {
                         coordinate={selectedLocation.coordinates}
                         title='Ave Frate!'
                       />
+                      <Callout tooltip>
+                        <View style={styles.calloutContainer}>
+                          <Text
+                            style={styles.calloutText}
+                            onPress={() => {
+                              setIsVisible(true);
+                            }}
+                          >
+                            Abrir en mapa
+                          </Text>
+                        </View>
+                      </Callout>
                     </MapView>
                   </View>
-                )}
+                ) : null}
               </View>
               <View style={styles.container}>
                 <View style={styles.rowContainer}>
@@ -453,6 +485,11 @@ function EventCreateScreen({ navigation }) {
               </View>
             </Card>
           </View>
+          <MapComponent
+            isVisible={isModalVisible}
+            closeModal={handleCloseModal}
+            cancelModal={handleCancelModal}
+          />
         </ScrollView>
       )}
     </Formik>
@@ -552,6 +589,17 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  calloutContainer: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    // backgroundColor: 'white',
+    borderRadius: 10,
+    elevation: 4,
+  },
+  calloutText: {
+    fontSize: 16,
+    color: 'blue',
   },
 });
 
