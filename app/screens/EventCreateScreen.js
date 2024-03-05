@@ -146,7 +146,8 @@ function EventCreateScreen({ navigation }) {
     try {
       console.log(values);
       setIsLoading(true);
-      let imageUrl = '';
+      let imageUrl =
+        'https://firebasestorage.googleapis.com/v0/b/newsigmabeta.appspot.com/o/events%2Fescudo_nsb.jpg?alt=media&token=d79d4e0e-d98c-4e80-9aa0-00abf856d384';
       if (imageBlob && localFileName) {
         console.log('entre');
         const storage = getStorage();

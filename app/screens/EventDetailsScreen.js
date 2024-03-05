@@ -160,7 +160,9 @@ function EventDetailsScreen({ navigation }) {
     console.log(values);
     try {
       setIsLoading(true);
-      let imageUrl = '';
+      let imageUrl = item.imageUrl
+        ? item.imageUrl
+        : 'https://firebasestorage.googleapis.com/v0/b/newsigmabeta.appspot.com/o/events%2Fescudo_nsb.jpg?alt=media&token=d79d4e0e-d98c-4e80-9aa0-00abf856d384';
 
       if (imageBlob && localFileName) {
         const storage = getStorage();
@@ -168,7 +170,6 @@ function EventDetailsScreen({ navigation }) {
         await uploadBytes(storageRef, imageBlob);
         imageUrl = await getDownloadURL(storageRef);
       }
-
       const editedBy = auth.currentUser.uid;
       const editedDate = new Date().getDate();
       // const fileName = localFileName;
