@@ -543,7 +543,10 @@ function EventCreateScreen({ navigation }) {
           <View style={styles.activityLoading}>
             <Dialog isVisible={isLoading}>
               <Dialog.Loading loadingStyle={{ color: '#002366' }} />
-              <Dialog.Title title='Creando Evento...' />
+              <Dialog.Title
+                title='Creando Evento...'
+                titleStyle={{ alignSelf: 'center' }}
+              />
             </Dialog>
           </View>
           <MapComponent
