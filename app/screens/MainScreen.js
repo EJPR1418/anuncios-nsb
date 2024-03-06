@@ -70,8 +70,7 @@ const Root = () => {
           ),
         }}
       />
-      <Drawer.Screen
-        detachInactiveScreens={false}
+      {/* <Drawer.Screen
         name='Crear_Evento'
         component={EventCreateScreen}
         options={{
@@ -85,7 +84,7 @@ const Root = () => {
             />
           ),
         }}
-      />
+      /> */}
       <Drawer.Screen
         name='Salir'
         component={LogoutScreen}
@@ -172,6 +171,11 @@ const MainScreen = () => {
           name='Detalles_Evento'
           component={EventDetailsScreen}
           options={{ title: 'Detalles de Evento' }}
+        />
+        <Stack.Screen
+          name='Crear_Evento'
+          component={EventCreateScreen}
+          options={{ title: 'Crear Evento' }}
         />
         <Stack.Screen
           name='Mapa'

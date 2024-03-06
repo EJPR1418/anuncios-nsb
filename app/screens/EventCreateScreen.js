@@ -21,7 +21,7 @@ import MapView, { Marker, Callout } from 'react-native-maps';
 import { useRoute } from '@react-navigation/native';
 import { Formik } from 'formik';
 import { db, auth } from '../firebase/firebase';
-import { ref as dRef, push } from 'firebase/database';
+import { ref as dRef, push, onValue } from 'firebase/database';
 import {
   getStorage,
   uploadBytes,
@@ -57,22 +57,11 @@ function EventCreateScreen({ navigation }) {
     { label: 'Semi-Formal', value: '3' },
     { label: 'Formal', value: '4' },
   ];
-  const fraternityList = [
+  const [fraternityList, setFraternityList] = useState([
     { label: 'Zona Arecibo', value: '1' },
     { label: 'Zona Caparra', value: '2' },
     { label: 'Capitulo Omicron', value: '3' },
-  ];
-
-  useEffect(() => {
-    // if (selectedLocation) {
-    //   formikRef.current.setFieldValue('locationAddress', selectedLocation.name);
-    //   if (firstUpdate.current) {
-    //     firstUpdate.current = false;
-    //     return;
-    //   }
-    //   mapRef.current?.animateToRegion(selectedLocation.coordinates);
-    // }
-  }, []);
+  ]);
   const [isLoading, setIsLoading] = useState(false);
   const [image, setImage] = useState(require('../assets/escudo_nsb.jpg')); //https://picsum.photos/700
   const [localFileName, setLocalFileName] = useState(null);
@@ -82,6 +71,29 @@ function EventCreateScreen({ navigation }) {
   const [selectedLocation, setSelectedLocation] = useState();
   const [isVisible, setIsVisible] = useState(false);
 
+  useEffect(() => {
+    console.log('Entreeeee');
+
+    const unsubscribe = onValue(dRef(db, 'nsb/fraternities/'), (snapshot) => {
+      console.log('Entreeeee222');
+
+      const dataVal = snapshot.val();
+      console.log(dataVal);
+      if (dataVal) {
+        const dataArr = Object.keys(dataVal).map((key) => ({
+          id: key,
+          ...dataVal[key],
+        }));
+
+        console.log(dataArr);
+        // setFraternityList(dataArr);
+      } else {
+        // setFraternityList([]);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
   const handleOpenModal = () => {
     setIsModalVisible(true);
   };
@@ -90,7 +102,7 @@ function EventCreateScreen({ navigation }) {
     setIsModalVisible(false);
     formikRef.current.setFieldValue('locationAddress', location.name);
     mapRef.current?.animateToRegion(location.coordinates);
-    console.log(location);
+    // console.log(location);
     setSelectedLocation(location);
   };
 
@@ -144,12 +156,11 @@ function EventCreateScreen({ navigation }) {
 
   const onSubmit = async (values) => {
     try {
-      console.log(values);
+      // console.log(values);
       setIsLoading(true);
       let imageUrl =
         'https://firebasestorage.googleapis.com/v0/b/newsigmabeta.appspot.com/o/events%2Fescudo_nsb.jpg?alt=media&token=d79d4e0e-d98c-4e80-9aa0-00abf856d384';
       if (imageBlob && localFileName) {
-        console.log('entre');
         const storage = getStorage();
         const storageRef = sRef(storage, `events/${localFileName}`);
         await uploadBytes(storageRef, imageBlob);
@@ -167,7 +178,7 @@ function EventCreateScreen({ navigation }) {
         imageUrl,
       };
 
-      console.log(postValues);
+      // console.log(postValues);
       push(dRef(db, 'nsb/events'), postValues);
       formikRef.current.resetForm();
       // const popAction = StackActions.pop(1);
@@ -218,7 +229,7 @@ function EventCreateScreen({ navigation }) {
         setFieldValue,
         resetForm,
       }) => (
-        <ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.mainContainer}>
             <Card containerStyle={styles.card}>
               <View>
@@ -559,6 +570,7 @@ function EventCreateScreen({ navigation }) {
     </Formik>
   );
 }
+
 EventCreateScreen.propTypes = {
   navigation: PropTypes.shape({
     dispatch: PropTypes.func.isRequired,

@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
   Modal,
 } from 'react-native';
-import { Card, Text, Button, Image, Divider, Icon } from '@rneui/themed';
+import { Card, Text, Button, Image, Divider, Icon, FAB } from '@rneui/themed';
 // import Modal from 'react-native-modal';
 import { db } from '../firebase/firebase';
 // import { fetchEvent } from '../firebase/helpers';
@@ -135,12 +135,27 @@ function HomeScreen({ navigation }) {
   return (
     <View>
       {data.length > 0 ? (
-        <FlatList
-          data={data}
-          keyExtractor={(item, index) => item.id}
-          renderItem={renderItem}
-          showsVerticalScrollIndicator={false}
-        />
+        <View style={styles.filterContainer}>
+          <FAB
+            color='#002366'
+            style={{ alignSelf: 'flex-start', marginBottom: 5 }}
+            visible={true}
+            size='small'
+            title='Crear Evento'
+            onPress={() => {
+              navigation.navigate('Crear_Evento');
+            }}
+            icon={{ name: 'edit', color: 'white' }}
+            iconPosition='left'
+          />
+
+          <FlatList
+            data={data}
+            keyExtractor={(item, index) => item.id}
+            renderItem={renderItem}
+            showsVerticalScrollIndicator={false}
+          />
+        </View>
       ) : (
         <View
           style={{
@@ -208,6 +223,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'black',
+  },
+  filterContainer: {
+    paddingHorizontal: 5,
+    paddingVertical: 8,
+    marginBottom: 16, // Adjust as needed
+    backgroundColor: '#f0f0f0',
+    // borderRadius: 8,
+    // borderWidth: 1,
+    borderColor: '#ccc',
   },
 });
 
