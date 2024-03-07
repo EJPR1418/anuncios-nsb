@@ -21,7 +21,7 @@ import MapView, { Marker, Callout } from 'react-native-maps';
 import { useRoute } from '@react-navigation/native';
 import { Formik } from 'formik';
 import { db, auth } from '../firebase/firebase';
-import { ref as dRef, push, update } from 'firebase/database';
+import { ref as dRef, onValue, update } from 'firebase/database';
 import {
   getStorage,
   uploadBytes,
@@ -48,22 +48,9 @@ function EventDetailsScreen({ navigation }) {
 
   const [isEditing, setIsEditing] = useState(true);
 
-  const typeFraterno = [
-    { label: 'Miembro', value: '1' },
-    { label: 'Bonafide', value: '2' },
-  ];
-  const clothingStyle = [
-    { label: 'Casual', value: '1' },
-    { label: 'Casual-Elegante', value: '2' },
-    { label: 'Semi-Formal', value: '3' },
-    { label: 'Formal', value: '4' },
-  ];
-  const fraternityList = [
-    { label: 'Zona Arecibo', value: '1' },
-    { label: 'Zona Caparra', value: '2' },
-    { label: 'Capitulo Omicron', value: '3' },
-  ];
-
+  const [typeFraternoList, setTypeFraternoList] = useState([]);
+  const [clothingStyleList, setClothingStyleList] = useState([]);
+  const [fraternityList, setFraternityList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [image, setImage] = useState({ uri: item.imageUrl }); //https://picsum.photos/700
   const [localFileName, setlocalFileName] = useState(null);
@@ -91,8 +78,79 @@ function EventDetailsScreen({ navigation }) {
   };
 
   useEffect(() => {
-    console.log(item);
-    // setImage({ uri: item.imageUrl });
+    // console.log(item);
+    let unsubscribeFraternities;
+    let unsubscribeClothing;
+    let unsubscribeType;
+
+    try {
+      unsubscribeFraternities = onValue(
+        dRef(db, 'nsb/fraternities/'),
+        (snapshot) => {
+          const dataVal = snapshot.val();
+          if (dataVal) {
+            const dataArr = Object.keys(dataVal).map((key) => ({
+              id: key,
+              ...dataVal[key],
+            }));
+
+            //console.log(dataArr);
+            setFraternityList(dataArr);
+          } else {
+            setFraternityList([]);
+          }
+        }
+      );
+
+      unsubscribeClothing = onValue(dRef(db, 'nsb/clothing/'), (snapshot) => {
+        const dataVal = snapshot.val();
+        if (dataVal) {
+          const dataArr = Object.keys(dataVal).map((key) => ({
+            id: key,
+            ...dataVal[key],
+          }));
+
+          //console.log(dataArr);
+          setClothingStyleList(dataArr);
+        } else {
+          setClothingStyleList([]);
+        }
+      });
+
+      unsubscribeType = onValue(dRef(db, 'nsb/type/'), (snapshot) => {
+        const dataVal = snapshot.val();
+        if (dataVal) {
+          const dataArr = Object.keys(dataVal).map((key) => ({
+            id: key,
+            ...dataVal[key],
+          }));
+
+          //console.log(dataArr);
+          setTypeFraternoList(dataArr);
+        } else {
+          setTypeFraternoList([]);
+        }
+      });
+    } catch (error) {
+      console.error('Error setting up Firebase listener:', error);
+    }
+
+    return () => {
+      try {
+        if (unsubscribeFraternities) {
+          unsubscribeFraternities();
+          //console.log('Unsubscribed from Firebase listener');
+        }
+        if (unsubscribeClothing) {
+          unsubscribeClothing();
+        }
+        if (unsubscribeType) {
+          unsubscribeType();
+        }
+      } catch (error) {
+        console.error('Error unsubscribing from Firebase listener:', error);
+      }
+    };
   }, []);
 
   const handleEditButtonClick = () => {
@@ -287,7 +345,7 @@ function EventDetailsScreen({ navigation }) {
 
                     <DropdownComponent
                       editable={isEditing}
-                      data={typeFraterno}
+                      data={typeFraternoList}
                       selected={values.type}
                       onSelect={(tipo) => {
                         setFieldValue('type', tipo);
@@ -305,7 +363,7 @@ function EventDetailsScreen({ navigation }) {
 
                     <DropdownComponent
                       editable={isEditing}
-                      data={clothingStyle}
+                      data={clothingStyleList}
                       selected={values.clothing}
                       onSelect={(clothing) => {
                         setFieldValue('clothing', clothing);

@@ -540,27 +540,26 @@ function EventCreateScreen({ navigation }) {
                 ) : null}
               </View>
               <View style={styles.container}>
-                <View style={styles.rowContainer}>
-                  <View style={styles.calendarTimeContainer}>
-                    <Button
-                      title='Crear'
-                      buttonStyle={{
-                        backgroundColor: '#002366',
-                        borderRadius: 20,
-                      }}
-                      onPress={handleSubmit}
-                    />
-                  </View>
-                  <View style={styles.calendarTimeContainer}>
-                    <Button
-                      title='Limpiar'
-                      buttonStyle={{
-                        backgroundColor: '#002366',
-                        borderRadius: 20,
-                      }}
-                      onPress={resetForm}
-                    />
-                  </View>
+                <View style={styles.calendarTimeContainer}>
+                  <Button
+                    title='Crear'
+                    buttonStyle={{
+                      backgroundColor: '#002366',
+                      borderRadius: 20,
+                      marginBottom: 10,
+                    }}
+                    onPress={handleSubmit}
+                  />
+                </View>
+                <View style={styles.calendarTimeContainer}>
+                  <Button
+                    title='Limpiar'
+                    buttonStyle={{
+                      backgroundColor: 'red',
+                      borderRadius: 20,
+                    }}
+                    onPress={resetForm}
+                  />
                 </View>
               </View>
               <View style={{ flex: 1 }}>
