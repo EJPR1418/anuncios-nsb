@@ -43,16 +43,8 @@ function EventCreateScreen({ navigation }) {
   const mapRef = useRef();
   const formikRef = useRef();
 
-  const [typeFraternoList, setTypeFraternoList] = useState([
-    { label: 'Miembro', value: '1' },
-    { label: 'Bonafide', value: '2' },
-  ]);
-  const [clothingStyleList, setClothingStyleList] = useState([
-    { label: 'Casual', value: '1' },
-    { label: 'Casual-Elegante', value: '2' },
-    { label: 'Semi-Formal', value: '3' },
-    { label: 'Formal', value: '4' },
-  ]);
+  const [typeFraternoList, setTypeFraternoList] = useState([]);
+  const [clothingStyleList, setClothingStyleList] = useState([]);
   const [fraternityList, setFraternityList] = useState([]);
 
   const [isEditing, setIsEditing] = useState(true);
