@@ -47,7 +47,7 @@ function EventCreateScreen({ navigation }) {
     { label: 'Miembro', value: '1' },
     { label: 'Bonafide', value: '2' },
   ]);
-  const [clothingStyle, setClothingStyle] = useState([
+  const [clothingStyleList, setClothingStyleList] = useState([
     { label: 'Casual', value: '1' },
     { label: 'Casual-Elegante', value: '2' },
     { label: 'Semi-Formal', value: '3' },
@@ -89,20 +89,20 @@ function EventCreateScreen({ navigation }) {
         }
       );
 
-      // unsubscribeClothing = onValue(dRef(db, 'nsb/fraternities/'), (snapshot) => {
-      //   const dataVal = snapshot.val();
-      //   if (dataVal) {
-      //     const dataArr = Object.keys(dataVal).map((key) => ({
-      //       id: key,
-      //       ...dataVal[key],
-      //     }));
+      unsubscribeClothing = onValue(dRef(db, 'nsb/clothing/'), (snapshot) => {
+        const dataVal = snapshot.val();
+        if (dataVal) {
+          const dataArr = Object.keys(dataVal).map((key) => ({
+            id: key,
+            ...dataVal[key],
+          }));
 
-      //     //console.log(dataArr);
-      //     setFraternityList(dataArr);
-      //   } else {
-      //     setFraternityList([]);
-      //   }
-      // });
+          //console.log(dataArr);
+          setClothingStyleList(dataArr);
+        } else {
+          setClothingStyleList([]);
+        }
+      });
 
       // unsubscribeType = onValue(dRef(db, 'nsb/fraternities/'), (snapshot) => {
       //   const dataVal = snapshot.val();
@@ -127,6 +127,9 @@ function EventCreateScreen({ navigation }) {
         if (unsubscribeFraternities) {
           unsubscribeFraternities();
           //console.log('Unsubscribed from Firebase listener');
+        }
+        if (unsubscribeClothing) {
+          unsubscribeClothing();
         }
       } catch (error) {
         console.error('Error unsubscribing from Firebase listener:', error);
@@ -341,7 +344,7 @@ function EventCreateScreen({ navigation }) {
 
                     <DropdownComponent
                       editable={false}
-                      data={clothingStyle}
+                      data={clothingStyleList}
                       selected={values.clothing}
                       onSelect={(clothing) => {
                         setFieldValue('clothing', clothing);
