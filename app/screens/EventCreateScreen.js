@@ -43,7 +43,7 @@ function EventCreateScreen({ navigation }) {
   const mapRef = useRef();
   const formikRef = useRef();
 
-  const [typeFraterno, setTypeFraterno] = useState([
+  const [typeFraternoList, setTypeFraternoList] = useState([
     { label: 'Miembro', value: '1' },
     { label: 'Bonafide', value: '2' },
   ]);
@@ -104,20 +104,20 @@ function EventCreateScreen({ navigation }) {
         }
       });
 
-      // unsubscribeType = onValue(dRef(db, 'nsb/fraternities/'), (snapshot) => {
-      //   const dataVal = snapshot.val();
-      //   if (dataVal) {
-      //     const dataArr = Object.keys(dataVal).map((key) => ({
-      //       id: key,
-      //       ...dataVal[key],
-      //     }));
+      unsubscribeType = onValue(dRef(db, 'nsb/type/'), (snapshot) => {
+        const dataVal = snapshot.val();
+        if (dataVal) {
+          const dataArr = Object.keys(dataVal).map((key) => ({
+            id: key,
+            ...dataVal[key],
+          }));
 
-      //     //console.log(dataArr);
-      //     setFraternityList(dataArr);
-      //   } else {
-      //     setFraternityList([]);
-      //   }
-      // });
+          //console.log(dataArr);
+          setTypeFraternoList(dataArr);
+        } else {
+          setTypeFraternoList([]);
+        }
+      });
     } catch (error) {
       console.error('Error setting up Firebase listener:', error);
     }
@@ -130,6 +130,9 @@ function EventCreateScreen({ navigation }) {
         }
         if (unsubscribeClothing) {
           unsubscribeClothing();
+        }
+        if (unsubscribeType) {
+          unsubscribeType();
         }
       } catch (error) {
         console.error('Error unsubscribing from Firebase listener:', error);
@@ -326,7 +329,7 @@ function EventCreateScreen({ navigation }) {
 
                     <DropdownComponent
                       editable={false}
-                      data={typeFraterno}
+                      data={typeFraternoList}
                       selected={values.type}
                       onSelect={(tipo) => {
                         setFieldValue('type', tipo);
