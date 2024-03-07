@@ -40,30 +40,24 @@ import EventsSchema from '../schemas/EventSchema';
 import MapComponent from '../components/MapComponent';
 
 function EventCreateScreen({ navigation }) {
-  // const route = useRoute();
   const mapRef = useRef();
   const formikRef = useRef();
-  // const { selectedLocation } = route.params || {};
 
-  const [isEditing, setIsEditing] = useState(true);
-
-  const typeFraterno = [
+  const [typeFraterno, setTypeFraterno] = useState([
     { label: 'Miembro', value: '1' },
     { label: 'Bonafide', value: '2' },
-  ];
-  const clothingStyle = [
+  ]);
+  const [clothingStyle, setClothingStyle] = useState([
     { label: 'Casual', value: '1' },
     { label: 'Casual-Elegante', value: '2' },
     { label: 'Semi-Formal', value: '3' },
     { label: 'Formal', value: '4' },
-  ];
-  const [fraternityList, setFraternityList] = useState([
-    { label: 'Zona Arecibo', value: '1' },
-    { label: 'Zona Caparra', value: '2' },
-    { label: 'Capitulo Omicron', value: '3' },
   ]);
+  const [fraternityList, setFraternityList] = useState([]);
+
+  const [isEditing, setIsEditing] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [image, setImage] = useState(require('../assets/escudo_nsb.jpg')); //https://picsum.photos/700
+  const [image, setImage] = useState(require('../assets/escudo_nsb.jpg'));
   const [localFileName, setLocalFileName] = useState(null);
   const [imageBlob, setImageBlob] = useState(null);
 
@@ -72,26 +66,72 @@ function EventCreateScreen({ navigation }) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    console.log('Entreeeee');
+    let unsubscribeFraternities;
+    let unsubscribeClothing;
+    let unsubscribeType;
 
-    const unsubscribe = onValue(dRef(db, 'nsb/fraternities/'), (snapshot) => {
-      console.log('Entreeeee222');
+    try {
+      unsubscribeFraternities = onValue(
+        dRef(db, 'nsb/fraternities/'),
+        (snapshot) => {
+          const dataVal = snapshot.val();
+          if (dataVal) {
+            const dataArr = Object.keys(dataVal).map((key) => ({
+              id: key,
+              ...dataVal[key],
+            }));
 
-      const dataVal = snapshot.val();
-      console.log(dataVal);
-      if (dataVal) {
-        const dataArr = Object.keys(dataVal).map((key) => ({
-          id: key,
-          ...dataVal[key],
-        }));
+            //console.log(dataArr);
+            setFraternityList(dataArr);
+          } else {
+            setFraternityList([]);
+          }
+        }
+      );
 
-        console.log(dataArr);
-        // setFraternityList(dataArr);
-      } else {
-        // setFraternityList([]);
+      // unsubscribeClothing = onValue(dRef(db, 'nsb/fraternities/'), (snapshot) => {
+      //   const dataVal = snapshot.val();
+      //   if (dataVal) {
+      //     const dataArr = Object.keys(dataVal).map((key) => ({
+      //       id: key,
+      //       ...dataVal[key],
+      //     }));
+
+      //     //console.log(dataArr);
+      //     setFraternityList(dataArr);
+      //   } else {
+      //     setFraternityList([]);
+      //   }
+      // });
+
+      // unsubscribeType = onValue(dRef(db, 'nsb/fraternities/'), (snapshot) => {
+      //   const dataVal = snapshot.val();
+      //   if (dataVal) {
+      //     const dataArr = Object.keys(dataVal).map((key) => ({
+      //       id: key,
+      //       ...dataVal[key],
+      //     }));
+
+      //     //console.log(dataArr);
+      //     setFraternityList(dataArr);
+      //   } else {
+      //     setFraternityList([]);
+      //   }
+      // });
+    } catch (error) {
+      console.error('Error setting up Firebase listener:', error);
+    }
+
+    return () => {
+      try {
+        if (unsubscribeFraternities) {
+          unsubscribeFraternities();
+          //console.log('Unsubscribed from Firebase listener');
+        }
+      } catch (error) {
+        console.error('Error unsubscribing from Firebase listener:', error);
       }
-    });
-    return () => unsubscribe();
+    };
   }, []);
 
   const handleOpenModal = () => {

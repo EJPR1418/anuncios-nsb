@@ -15,12 +15,12 @@ import { Card, Text, Button, Image, Divider, Icon, FAB } from '@rneui/themed';
 import { db } from '../firebase/firebase';
 // import { fetchEvent } from '../firebase/helpers';
 import { ref as dRef, query, orderByChild, onValue } from 'firebase/database';
-import {
-  getStorage,
-  uploadBytes,
-  ref as sRef,
-  getDownloadURL,
-} from 'firebase/storage';
+// import {
+//   getStorage,
+//   uploadBytes,
+//   ref as sRef,
+//   getDownloadURL,
+// } from 'firebase/storage';
 
 function HomeScreen({ navigation }) {
   const [isModalVisible, setModalVisible] = useState(false);
