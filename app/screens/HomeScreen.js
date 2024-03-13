@@ -11,16 +11,8 @@ import {
   Modal,
 } from 'react-native';
 import { Card, Text, Button, Image, Divider, Icon, FAB } from '@rneui/themed';
-// import Modal from 'react-native-modal';
 import { db } from '../firebase/firebase';
-// import { fetchEvent } from '../firebase/helpers';
 import { ref as dRef, query, orderByChild, onValue } from 'firebase/database';
-// import {
-//   getStorage,
-//   uploadBytes,
-//   ref as sRef,
-//   getDownloadURL,
-// } from 'firebase/storage';
 
 function HomeScreen({ navigation }) {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -39,18 +31,6 @@ function HomeScreen({ navigation }) {
           ...dataVal[key],
         }));
 
-        // const storage = getStorage();
-        // dataArr.forEach(async (item) => {
-        //   const fileName = !item.fileName ? 'escudo_nsb.jpg' : item.fileName;
-        //   const imageRef = sRef(storage, `events/${fileName}`);
-
-        //   try {
-        //     const url = await getDownloadURL(imageRef);
-        //     item.imageUrl = url;
-        //   } catch (error) {
-        //     console.error('Error fetching image:', error);
-        //   }
-        // });
         console.log(dataArr);
         setData(dataArr);
       } else {
@@ -77,7 +57,7 @@ function HomeScreen({ navigation }) {
           <Card.Image
             source={{ uri: item.imageUrl }}
             style={{ height: 200, borderRadius: 10 }}
-            // PlaceholderContent={<ActivityIndicator />}
+            PlaceholderContent={<ActivityIndicator />}
           />
         </TouchableOpacity>
         <View style={styles.container}>
@@ -133,28 +113,53 @@ function HomeScreen({ navigation }) {
   );
 
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       {data.length > 0 ? (
-        <View style={styles.filterContainer}>
-          <FAB
-            color='#002366'
-            style={{ alignSelf: 'flex-start', marginBottom: 5 }}
-            visible={true}
-            size='small'
-            title='Crear Evento'
-            onPress={() => {
-              navigation.navigate('Crear_Evento');
-            }}
-            icon={{ name: 'edit', color: 'white' }}
-            iconPosition='left'
-          />
-
-          <FlatList
-            data={data}
-            keyExtractor={(item, index) => item.id}
-            renderItem={renderItem}
-            showsVerticalScrollIndicator={false}
-          />
+        <View>
+          <View style={styles.filterContainer}>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+              }}
+            >
+              <View>
+                <FAB
+                  color='#002366'
+                  style={{ alignSelf: 'flex-start' }}
+                  visible={true}
+                  size='small'
+                  title='Crear Evento'
+                  onPress={() => {
+                    navigation.navigate('Crear_Evento');
+                  }}
+                  icon={{ name: 'edit', color: 'white' }}
+                  iconPosition='left'
+                />
+              </View>
+              <View>
+                <FAB
+                  color='#002366'
+                  style={{ alignSelf: 'flex-end' }}
+                  visible={true}
+                  size='small'
+                  // title='Crear Evento'
+                  onPress={() => {}}
+                  icon={{ name: 'filter-alt', color: 'white' }}
+                  // iconPosition='left'
+                />
+              </View>
+            </View>
+          </View>
+          <View style={{ height: '90%' }}>
+            <FlatList
+              data={data}
+              keyExtractor={(item, index) => item.id}
+              renderItem={renderItem}
+              showsVerticalScrollIndicator={false}
+            />
+          </View>
         </View>
       ) : (
         <View
@@ -225,13 +230,17 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
   },
   filterContainer: {
-    paddingHorizontal: 5,
-    paddingVertical: 8,
-    marginBottom: 16, // Adjust as needed
+    // paddingHorizontal: 5,
+    // paddingVertical: 8,
+    marginTop: 10,
+    marginLeft: 5,
+    marginRight: 5,
+    height: 50,
+    // marginBottom: 16, // Adjust as needed
     backgroundColor: '#f0f0f0',
     // borderRadius: 8,
     // borderWidth: 1,
-    borderColor: '#ccc',
+    // borderColor: '#ccc',
   },
 });
 
