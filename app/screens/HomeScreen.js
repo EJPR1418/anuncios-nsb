@@ -144,10 +144,8 @@ function HomeScreen({ navigation }) {
                   style={{ alignSelf: 'flex-end' }}
                   visible={true}
                   size='small'
-                  // title='Crear Evento'
                   onPress={() => {}}
                   icon={{ name: 'filter-alt', color: 'white' }}
-                  // iconPosition='left'
                 />
               </View>
             </View>
