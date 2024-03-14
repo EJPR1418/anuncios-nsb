@@ -10,7 +10,16 @@ import {
   ActivityIndicator,
   Modal,
 } from 'react-native';
-import { Card, Text, Button, Image, Divider, Icon, FAB } from '@rneui/themed';
+import {
+  Card,
+  Text,
+  Button,
+  Image,
+  Divider,
+  Icon,
+  FAB,
+  Dialog,
+} from '@rneui/themed';
 import { db } from '../firebase/firebase';
 import { ref as dRef, query, orderByChild, onValue } from 'firebase/database';
 
@@ -18,6 +27,9 @@ function HomeScreen({ navigation }) {
   const [isModalVisible, setModalVisible] = useState(false);
   const [imageFullScreen, setImageFullScreen] = useState();
   const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+
+  const [isFilterDialogVisible, setIsFilteredDialogVisible] = useState(false);
 
   const deviceHeight = Dimensions.get('window').height;
   const deviceWidth = Dimensions.get('window').width;
@@ -43,6 +55,23 @@ function HomeScreen({ navigation }) {
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
+  };
+
+  const toggleFilterDialog = () => {
+    setIsFilteredDialogVisible(!isFilterDialogVisible);
+  };
+  const filterData = (type, date) => {
+    let filtered = data;
+
+    if (type) {
+      filtered = filtered.filter((event) => event.type === type);
+    }
+
+    if (date) {
+      filtered = filtered.filter((event) => event.date === date);
+    }
+
+    setFilteredData(filtered);
   };
 
   const renderItem = ({ item }) => (
@@ -144,7 +173,7 @@ function HomeScreen({ navigation }) {
                   style={{ alignSelf: 'flex-end' }}
                   visible={true}
                   size='small'
-                  onPress={() => {}}
+                  onPress={toggleFilterDialog}
                   icon={{ name: 'filter-alt', color: 'white' }}
                 />
               </View>
@@ -158,6 +187,26 @@ function HomeScreen({ navigation }) {
               showsVerticalScrollIndicator={false}
             />
           </View>
+
+          <Dialog
+            isVisible={isFilterDialogVisible}
+            onBackdropPress={toggleFilterDialog}
+            overlayStyle={{ width: '80%' }} // Adjust width as needed
+          >
+            <Dialog.Title
+              title='Filtrar Datos'
+              titleStyle={{ alignSelf: 'center' }}
+            />
+
+            <View>
+              <Button title='Fecha' onPress={() => {}} />
+              <Button title='Fraternidad' onPress={() => {}} />
+              {/* Add more buttons for other types as needed */}
+
+              {/* Example of a close button */}
+              <Button title='Cerrar' onPress={toggleFilterDialog} />
+            </View>
+          </Dialog>
         </View>
       ) : (
         <View
