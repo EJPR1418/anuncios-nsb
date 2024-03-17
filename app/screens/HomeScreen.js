@@ -199,39 +199,49 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <View>
-      <View>
-        <FlatList
-          horizontal={true}
-          data={years}
-          renderItem={renderYearItem}
-          keyExtractor={(item) => item.toString()}
-          ItemSeparatorComponent={() => <View style={styles.divider} />}
-          contentContainerStyle={styles.flatListContentContainer}
-          showsHorizontalScrollIndicator={false}
-        />
-      </View>
-      <View>
-        <FlatList
-          horizontal={true}
-          data={months}
-          renderItem={renderMonthItem}
-          keyExtractor={(item) => item.toString()}
-          ItemSeparatorComponent={() => <View style={styles.divider} />}
-          contentContainerStyle={styles.flatListContentContainer}
-          showsHorizontalScrollIndicator={false}
-        />
-      </View>
-
-      <View>
-        <FlatList
-          horizontal={true}
-          data={days}
-          renderItem={renderDayItem}
-          keyExtractor={(item) => item.toString()}
-          ItemSeparatorComponent={() => <View style={styles.divider} />}
-          contentContainerStyle={styles.flatListContentContainer}
-          showsHorizontalScrollIndicator={false}
-        />
+      <View
+        style={{
+          backgroundColor: 'white',
+          borderRadius: 10,
+          margin: 5,
+          // height: 100,
+        }}
+      >
+        <View>
+          <FlatList
+            horizontal={true}
+            data={years}
+            renderItem={renderYearItem}
+            keyExtractor={(item) => item.toString()}
+            ItemSeparatorComponent={() => <View style={styles.divider} />}
+            contentContainerStyle={styles.flatListContentContainer}
+            showsHorizontalScrollIndicator={false}
+          />
+        </View>
+        <Divider />
+        <View>
+          <FlatList
+            horizontal={true}
+            data={months}
+            renderItem={renderMonthItem}
+            keyExtractor={(item) => item.toString()}
+            ItemSeparatorComponent={() => <View style={styles.divider} />}
+            contentContainerStyle={styles.flatListContentContainer}
+            showsHorizontalScrollIndicator={false}
+          />
+        </View>
+        <Divider />
+        <View>
+          <FlatList
+            horizontal={true}
+            data={days}
+            renderItem={renderDayItem}
+            keyExtractor={(item) => item.toString()}
+            ItemSeparatorComponent={() => <View style={styles.divider} />}
+            contentContainerStyle={styles.flatListContentContainer}
+            showsHorizontalScrollIndicator={false}
+          />
+        </View>
       </View>
 
       {data.length > 0 ? (
@@ -386,7 +396,7 @@ const styles = StyleSheet.create({
     // borderColor: '#ccc',
   },
   itemText: {
-    fontSize: 18,
+    fontSize: 48,
     fontWeight: 'bold',
     marginHorizontal: 5,
   },
