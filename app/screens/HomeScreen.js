@@ -9,6 +9,7 @@ import {
   Dimensions,
   ActivityIndicator,
   Modal,
+  Platform,
 } from 'react-native';
 import {
   Card,
@@ -19,15 +20,19 @@ import {
   Icon,
   FAB,
   Dialog,
+  TabView,
 } from '@rneui/themed';
 import { db } from '../firebase/firebase';
 import { ref as dRef, query, orderByChild, onValue } from 'firebase/database';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { getDaysInMonth } from 'date-fns';
 
-function HomeScreen({ navigation }) {
+const HomeScreen = ({ navigation }) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [imageFullScreen, setImageFullScreen] = useState();
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
+  const [filterDate, setFilterDate] = useState(new Date());
 
   const [isFilterDialogVisible, setIsFilteredDialogVisible] = useState(false);
 
@@ -57,6 +62,11 @@ function HomeScreen({ navigation }) {
     setModalVisible(!isModalVisible);
   };
 
+  const onChangeDate = (event, selected) => {
+    const currentDate = selected || filterDate;
+    // setShowDatePicker(Platform.OS === 'ios');
+    setFilterDate(currentDate);
+  };
   const toggleFilterDialog = () => {
     setIsFilteredDialogVisible(!isFilterDialogVisible);
   };
@@ -73,6 +83,52 @@ function HomeScreen({ navigation }) {
 
     setFilteredData(filtered);
   };
+
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 10 }, (_, index) => currentYear - index); // Display 10 years
+  const months = Array.from({ length: 12 }, (_, index) => index);
+  const daysInMonth = new Date(
+    filterDate.getFullYear(),
+    filterDate.getMonth() + 1,
+    0
+  ).getDate();
+  const days = Array.from({ length: daysInMonth }, (_, index) => index + 1);
+
+  const renderYearItem = ({ item }) => (
+    <TouchableOpacity
+      onPress={() =>
+        setFilterDate(
+          new Date(item, filterDate.getMonth(), filterDate.getDate())
+        )
+      }
+    >
+      <Text style={styles.itemText}>{item}</Text>
+    </TouchableOpacity>
+  );
+
+  const renderMonthItem = ({ item }) => (
+    <TouchableOpacity
+      onPress={() =>
+        setFilterDate(
+          new Date(filterDate.getFullYear(), item, filterDate.getDate())
+        )
+      }
+    >
+      <Text style={styles.itemText}>{item + 1}</Text>
+    </TouchableOpacity>
+  );
+
+  const renderDayItem = ({ item }) => (
+    <TouchableOpacity
+      onPress={() =>
+        setFilterDate(
+          new Date(filterDate.getFullYear(), filterDate.getMonth(), item)
+        )
+      }
+    >
+      <Text style={styles.itemText}>{item}</Text>
+    </TouchableOpacity>
+  );
 
   const renderItem = ({ item }) => (
     <View>
@@ -142,7 +198,42 @@ function HomeScreen({ navigation }) {
   );
 
   return (
-    <View style={{ flex: 1 }}>
+    <View>
+      <View>
+        <FlatList
+          horizontal={true}
+          data={years}
+          renderItem={renderYearItem}
+          keyExtractor={(item) => item.toString()}
+          ItemSeparatorComponent={() => <View style={styles.divider} />}
+          contentContainerStyle={styles.flatListContentContainer}
+          showsHorizontalScrollIndicator={false}
+        />
+      </View>
+      <View>
+        <FlatList
+          horizontal={true}
+          data={months}
+          renderItem={renderMonthItem}
+          keyExtractor={(item) => item.toString()}
+          ItemSeparatorComponent={() => <View style={styles.divider} />}
+          contentContainerStyle={styles.flatListContentContainer}
+          showsHorizontalScrollIndicator={false}
+        />
+      </View>
+
+      <View>
+        <FlatList
+          horizontal={true}
+          data={days}
+          renderItem={renderDayItem}
+          keyExtractor={(item) => item.toString()}
+          ItemSeparatorComponent={() => <View style={styles.divider} />}
+          contentContainerStyle={styles.flatListContentContainer}
+          showsHorizontalScrollIndicator={false}
+        />
+      </View>
+
       {data.length > 0 ? (
         <View>
           <View style={styles.filterContainer}>
@@ -153,7 +244,7 @@ function HomeScreen({ navigation }) {
                 justifyContent: 'space-between',
               }}
             >
-              <View>
+              {/* <View>
                 <FAB
                   color='#002366'
                   style={{ alignSelf: 'flex-start' }}
@@ -176,7 +267,7 @@ function HomeScreen({ navigation }) {
                   onPress={toggleFilterDialog}
                   icon={{ name: 'filter-alt', color: 'white' }}
                 />
-              </View>
+              </View> */}
             </View>
           </View>
           <View style={{ height: '90%' }}>
@@ -199,11 +290,16 @@ function HomeScreen({ navigation }) {
             />
 
             <View>
-              <Button title='Fecha' onPress={() => {}} />
               <Button title='Fraternidad' onPress={() => {}} />
-              {/* Add more buttons for other types as needed */}
+              <DateTimePicker
+                value={filterDate}
+                display='default'
+                onChange={onChangeDate}
+                mode='date'
+                textColor='black'
+                style={{ width: '100%' }}
+              />
 
-              {/* Example of a close button */}
               <Button title='Cerrar' onPress={toggleFilterDialog} />
             </View>
           </Dialog>
@@ -230,7 +326,7 @@ function HomeScreen({ navigation }) {
       )}
     </View>
   );
-}
+};
 
 HomeScreen.propTypes = {
   navigation: PropTypes.shape({
@@ -288,6 +384,17 @@ const styles = StyleSheet.create({
     // borderRadius: 8,
     // borderWidth: 1,
     // borderColor: '#ccc',
+  },
+  itemText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginHorizontal: 5,
+  },
+  divider: {
+    width: 10, // Adjust divider width as needed
+  },
+  flatListContentContainer: {
+    justifyContent: 'center',
   },
 });
 
