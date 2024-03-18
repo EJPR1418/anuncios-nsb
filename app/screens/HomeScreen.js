@@ -34,11 +34,12 @@ const HomeScreen = ({ navigation }) => {
   const [filteredData, setFilteredData] = useState([]);
   const [filterDate, setFilterDate] = useState(new Date());
 
+  const [selectedId, setSelectedId] = useState();
+
   const [isFilterDialogVisible, setIsFilteredDialogVisible] = useState(false);
 
   const deviceHeight = Dimensions.get('window').height;
   const deviceWidth = Dimensions.get('window').width;
-
   useEffect(() => {
     const unsubscribe = onValue(dRef(db, 'nsb/events/'), (snapshot) => {
       const dataVal = snapshot.val();
@@ -85,8 +86,14 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 10 }, (_, index) => currentYear - index); // Display 10 years
-  const months = Array.from({ length: 12 }, (_, index) => index);
+  const years = Array.from(
+    { length: 10 },
+    (_, index) => currentYear - 4 + index
+  ); // Display 10 years
+  const months = Array.from({ length: 12 }, (_, index) => {
+    const monthDate = new Date(filterDate.getFullYear(), index, 1);
+    return monthDate.toLocaleString('es-ES', { month: 'long' }); // Get month name
+  });
   const daysInMonth = new Date(
     filterDate.getFullYear(),
     filterDate.getMonth() + 1,
@@ -101,6 +108,10 @@ const HomeScreen = ({ navigation }) => {
           new Date(item, filterDate.getMonth(), filterDate.getDate())
         )
       }
+      style={[
+        styles.item,
+        filterDate.getFullYear() === item && styles.selectedItem,
+      ]}
     >
       <Text style={styles.itemText}>{item}</Text>
     </TouchableOpacity>
@@ -110,26 +121,46 @@ const HomeScreen = ({ navigation }) => {
     <TouchableOpacity
       onPress={() =>
         setFilterDate(
-          new Date(filterDate.getFullYear(), item, filterDate.getDate())
+          new Date(
+            filterDate.getFullYear(),
+            months.indexOf(item),
+            filterDate.getDate()
+          )
         )
       }
-    >
-      <Text style={styles.itemText}>{item + 1}</Text>
-    </TouchableOpacity>
-  );
-
-  const renderDayItem = ({ item }) => (
-    <TouchableOpacity
-      onPress={() =>
-        setFilterDate(
-          new Date(filterDate.getFullYear(), filterDate.getMonth(), item)
-        )
-      }
+      style={[
+        styles.item,
+        months.indexOf(item) === filterDate.getMonth() && styles.selectedItem,
+      ]}
     >
       <Text style={styles.itemText}>{item}</Text>
     </TouchableOpacity>
   );
 
+  const renderDayItem = ({ item }) => (
+    <View>
+      <TouchableOpacity
+        onPress={() =>
+          setFilterDate(
+            new Date(filterDate.getFullYear(), filterDate.getMonth(), item)
+          )
+        }
+        style={[
+          styles.item,
+          item === filterDate.getDate() && styles.selectedItem,
+        ]}
+      >
+        <Text style={styles.itemText}>{item}</Text>
+        <Icon
+          style={{ alignSelf: 'center', marginBottom: 5 }}
+          name='hand-point-up'
+          type='font-awesome-5'
+          color='#002366'
+          size={18}
+        />
+      </TouchableOpacity>
+    </View>
+  );
   const renderItem = ({ item }) => (
     <View>
       <Card containerStyle={styles.card}>
@@ -163,10 +194,10 @@ const HomeScreen = ({ navigation }) => {
         <View style={styles.container}>
           <View style={styles.rowContainer}>
             <Icon
-              name='place'
-              type='material' // Adjust the icon library if needed
-              size={24}
-              color='black'
+              name='map-pin'
+              type='font-awesome-5'
+              color='#002366'
+              size={18}
             />
             <Text style={{ textAlign: 'left', fontSize: 16, flex: 1 }}>
               {item.locationAddress}
@@ -207,7 +238,7 @@ const HomeScreen = ({ navigation }) => {
           // height: 100,
         }}
       >
-        <View>
+        <View style={styles.flatListContainer}>
           <FlatList
             horizontal={true}
             data={years}
@@ -219,7 +250,7 @@ const HomeScreen = ({ navigation }) => {
           />
         </View>
         <Divider />
-        <View>
+        <View style={styles.flatListContainer}>
           <FlatList
             horizontal={true}
             data={months}
@@ -231,7 +262,7 @@ const HomeScreen = ({ navigation }) => {
           />
         </View>
         <Divider />
-        <View>
+        <View style={styles.flatListContainer}>
           <FlatList
             horizontal={true}
             data={days}
@@ -254,7 +285,7 @@ const HomeScreen = ({ navigation }) => {
                 justifyContent: 'space-between',
               }}
             >
-              {/* <View>
+              <View>
                 <FAB
                   color='#002366'
                   style={{ alignSelf: 'flex-start' }}
@@ -264,7 +295,11 @@ const HomeScreen = ({ navigation }) => {
                   onPress={() => {
                     navigation.navigate('Crear_Evento');
                   }}
-                  icon={{ name: 'edit', color: 'white' }}
+                  icon={{
+                    name: 'plus',
+                    color: 'white',
+                    type: 'font-awesome-5',
+                  }}
                   iconPosition='left'
                 />
               </View>
@@ -275,9 +310,13 @@ const HomeScreen = ({ navigation }) => {
                   visible={true}
                   size='small'
                   onPress={toggleFilterDialog}
-                  icon={{ name: 'filter-alt', color: 'white' }}
+                  icon={{
+                    name: 'filter',
+                    color: 'white',
+                    type: 'font-awesome-5',
+                  }}
                 />
-              </View> */}
+              </View>
             </View>
           </View>
           <View style={{ height: '90%' }}>
@@ -396,7 +435,7 @@ const styles = StyleSheet.create({
     // borderColor: '#ccc',
   },
   itemText: {
-    fontSize: 48,
+    fontSize: 38,
     fontWeight: 'bold',
     marginHorizontal: 5,
   },
@@ -405,6 +444,13 @@ const styles = StyleSheet.create({
   },
   flatListContentContainer: {
     justifyContent: 'center',
+  },
+  selectedItem: {
+    backgroundColor: '#f0f0f0',
+    borderRadius: 10,
+  },
+  flatListContainer: {
+    padding: 5,
   },
 });
 
