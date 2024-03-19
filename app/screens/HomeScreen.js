@@ -23,7 +23,13 @@ import {
   TabView,
 } from '@rneui/themed';
 import { db } from '../firebase/firebase';
-import { ref as dRef, query, orderByChild, onValue } from 'firebase/database';
+import {
+  ref as dRef,
+  query,
+  orderByChild,
+  onValue,
+  equalTo,
+} from 'firebase/database';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { getDaysInMonth } from 'date-fns';
 
@@ -41,23 +47,33 @@ const HomeScreen = ({ navigation }) => {
   const deviceHeight = Dimensions.get('window').height;
   const deviceWidth = Dimensions.get('window').width;
   useEffect(() => {
-    const unsubscribe = onValue(dRef(db, 'nsb/events/'), (snapshot) => {
-      const dataVal = snapshot.val();
-      if (dataVal) {
-        const dataArr = Object.keys(dataVal).map((key) => ({
-          id: key,
-          ...dataVal[key],
-        }));
+    const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+    const filterDateStr = filterDate.toLocaleDateString(undefined, options);
+    console.log(filterDateStr);
+    const unsubscribe = onValue(
+      query(
+        dRef(db, 'nsb/events/'),
+        orderByChild('startDate'),
+        equalTo(filterDateStr)
+      ),
+      (snapshot) => {
+        const dataVal = snapshot.val();
+        if (dataVal) {
+          const dataArr = Object.keys(dataVal).map((key) => ({
+            id: key,
+            ...dataVal[key],
+          }));
 
-        console.log(dataArr);
-        setData(dataArr);
-      } else {
-        setData([]);
+          console.log(dataArr);
+          setData(dataArr);
+        } else {
+          setData([]);
+        }
       }
-    });
+    );
 
     return () => unsubscribe();
-  }, []);
+  }, [filterDate]);
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
@@ -65,7 +81,6 @@ const HomeScreen = ({ navigation }) => {
 
   const onChangeDate = (event, selected) => {
     const currentDate = selected || filterDate;
-    // setShowDatePicker(Platform.OS === 'ios');
     setFilterDate(currentDate);
   };
   const toggleFilterDialog = () => {

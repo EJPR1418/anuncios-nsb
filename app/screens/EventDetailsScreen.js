@@ -229,7 +229,7 @@ function EventDetailsScreen({ navigation }) {
         imageUrl = await getDownloadURL(storageRef);
       }
       const editedBy = auth.currentUser.uid;
-      const editedDate = new Date().getDate();
+      const editedDate = new Date().getDate(); //TO-DO
       // const fileName = localFileName;
 
       const postValues = {
