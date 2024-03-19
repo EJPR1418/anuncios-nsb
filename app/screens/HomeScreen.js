@@ -37,6 +37,7 @@ const HomeScreen = ({ navigation }) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [imageFullScreen, setImageFullScreen] = useState();
   const [data, setData] = useState([]);
+  const [monthEventsDays, setMonthEventsDays] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [filterDate, setFilterDate] = useState(new Date());
 
@@ -49,8 +50,38 @@ const HomeScreen = ({ navigation }) => {
   useEffect(() => {
     const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
     const filterDateStr = filterDate.toLocaleDateString(undefined, options);
-    console.log(filterDateStr);
-    const unsubscribe = onValue(
+    const filterMonth = filterDate.getMonth() + 1; // Month is zero-based, so add 1 to get the correct month
+    const filterYear = filterDate.getFullYear();
+    let unsubscribeEventDay;
+    let unsubscribeEventsByDate;
+
+    unsubscribeEventDay = onValue(
+      query(dRef(db, 'nsb/events/'), orderByChild('startDate')),
+      (snapshot) => {
+        const events = [];
+        snapshot.forEach((childSnapshot) => {
+          const event = childSnapshot.val();
+          const [month, day, year] = event.startDate.split('/').map(Number);
+          const startDate = new Date(year, month - 1, day);
+          const eventMonth = startDate.getMonth() + 1;
+          const eventYear = startDate.getFullYear();
+
+          // console.log(startDate + ' ' + eventMonth + ' ' + eventYear);
+          if (eventMonth === filterMonth && eventYear === filterYear) {
+            events.push(day);
+          }
+        });
+
+        if (events) {
+          console.log(events);
+          setMonthEventsDays(events);
+        } else {
+          setMonthEventsDays([]);
+        }
+      }
+    );
+
+    unsubscribeEventsByDate = onValue(
       query(
         dRef(db, 'nsb/events/'),
         orderByChild('startDate'),
@@ -64,7 +95,7 @@ const HomeScreen = ({ navigation }) => {
             ...dataVal[key],
           }));
 
-          console.log(dataArr);
+          // console.log(dataArr);
           setData(dataArr);
         } else {
           setData([]);
@@ -72,7 +103,19 @@ const HomeScreen = ({ navigation }) => {
       }
     );
 
-    return () => unsubscribe();
+    return () => {
+      try {
+        if (unsubscribeEventDay) {
+          unsubscribeEventDay();
+          //console.log('Unsubscribed from Firebase listener');
+        }
+        if (unsubscribeEventsByDate) {
+          unsubscribeEventsByDate();
+        }
+      } catch (error) {
+        console.error('Error unsubscribing from Firebase listener:', error);
+      }
+    };
   }, [filterDate]);
 
   const toggleModal = () => {
