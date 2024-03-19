@@ -194,31 +194,37 @@ const HomeScreen = ({ navigation }) => {
       <Text style={styles.itemText}>{item}</Text>
     </TouchableOpacity>
   );
+  const renderDayItem = ({ item }) => {
+    const shouldDisplayIcon = monthEventsDays.includes(item); // Check if item exists in the days list
 
-  const renderDayItem = ({ item }) => (
-    <View>
-      <TouchableOpacity
-        onPress={() =>
-          setFilterDate(
-            new Date(filterDate.getFullYear(), filterDate.getMonth(), item)
-          )
-        }
-        style={[
-          styles.item,
-          item === filterDate.getDate() && styles.selectedItem,
-        ]}
-      >
-        <Text style={styles.itemText}>{item}</Text>
-        <Icon
-          style={{ alignSelf: 'center', marginBottom: 5 }}
-          name='hand-point-up'
-          type='font-awesome-5'
-          color='#002366'
-          size={18}
-        />
-      </TouchableOpacity>
-    </View>
-  );
+    return (
+      <View>
+        <TouchableOpacity
+          onPress={() =>
+            setFilterDate(
+              new Date(filterDate.getFullYear(), filterDate.getMonth(), item)
+            )
+          }
+          style={[
+            styles.item,
+            item === filterDate.getDate() && styles.selectedItem,
+          ]}
+        >
+          <Text style={styles.itemText}>{item}</Text>
+
+          {shouldDisplayIcon ? ( // Conditionally render the icon
+            <Icon
+              style={{ alignSelf: 'center', marginBottom: 5 }}
+              name='hand-point-up'
+              type='font-awesome-5'
+              color='#002366'
+              size={18}
+            />
+          ) : null}
+        </TouchableOpacity>
+      </View>
+    );
+  };
   const renderItem = ({ item }) => (
     <View>
       <Card containerStyle={styles.card}>
