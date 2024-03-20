@@ -9,7 +9,6 @@ import {
   Dimensions,
   ActivityIndicator,
   Modal,
-  Platform,
 } from 'react-native';
 import {
   Card,
@@ -30,8 +29,6 @@ import {
   onValue,
   equalTo,
 } from 'firebase/database';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { getDaysInMonth } from 'date-fns';
 
 const HomeScreen = ({ navigation }) => {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -40,13 +37,10 @@ const HomeScreen = ({ navigation }) => {
   const [monthEventsDays, setMonthEventsDays] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [filterDate, setFilterDate] = useState(new Date());
-
-  const [selectedId, setSelectedId] = useState();
-
   const [isFilterDialogVisible, setIsFilteredDialogVisible] = useState(false);
-
   const deviceHeight = Dimensions.get('window').height;
   const deviceWidth = Dimensions.get('window').width;
+
   useEffect(() => {
     const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
     const filterDateStr = filterDate.toLocaleDateString(undefined, options);
@@ -122,10 +116,6 @@ const HomeScreen = ({ navigation }) => {
     setModalVisible(!isModalVisible);
   };
 
-  const onChangeDate = (event, selected) => {
-    const currentDate = selected || filterDate;
-    setFilterDate(currentDate);
-  };
   const toggleFilterDialog = () => {
     setIsFilteredDialogVisible(!isFilterDialogVisible);
   };
@@ -299,7 +289,7 @@ const HomeScreen = ({ navigation }) => {
           backgroundColor: 'white',
           borderRadius: 10,
           margin: 5,
-          // height: 100,
+          height: '24%',
         }}
       >
         <View style={styles.flatListContainer}>
@@ -340,7 +330,7 @@ const HomeScreen = ({ navigation }) => {
       </View>
 
       {data.length > 0 ? (
-        <View>
+        <View style={{ height: '70%' }}>
           <View style={styles.filterContainer}>
             <View
               style={{
@@ -383,7 +373,7 @@ const HomeScreen = ({ navigation }) => {
               </View>
             </View>
           </View>
-          <View style={{ height: '90%' }}>
+          <View>
             <FlatList
               data={data}
               keyExtractor={(item, index) => item.id}
@@ -404,14 +394,6 @@ const HomeScreen = ({ navigation }) => {
 
             <View>
               <Button title='Fraternidad' onPress={() => {}} />
-              <DateTimePicker
-                value={filterDate}
-                display='default'
-                onChange={onChangeDate}
-                mode='date'
-                textColor='black'
-                style={{ width: '100%' }}
-              />
 
               <Button title='Cerrar' onPress={toggleFilterDialog} />
             </View>
@@ -420,21 +402,63 @@ const HomeScreen = ({ navigation }) => {
       ) : (
         <View
           style={{
-            height: '100%',
-            justifyContent: 'center',
-            alignItems: 'center',
+            height: '70%',
           }}
         >
-          <Text
-            h4
-            style={{
-              fontWeight: 'bold',
-              color: 'gray',
-              textAlign: 'center',
-            }}
-          >
-            No se encontraron eventos...
-          </Text>
+          <View style={styles.filterContainer}>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+              }}
+            >
+              <View>
+                <FAB
+                  color='#002366'
+                  style={{ alignSelf: 'flex-start' }}
+                  visible={true}
+                  size='small'
+                  title='Crear Evento'
+                  onPress={() => {
+                    navigation.navigate('Crear_Evento');
+                  }}
+                  icon={{
+                    name: 'plus',
+                    color: 'white',
+                    type: 'font-awesome-5',
+                  }}
+                  iconPosition='left'
+                />
+              </View>
+              <View>
+                <FAB
+                  color='#002366'
+                  style={{ alignSelf: 'flex-end' }}
+                  visible={true}
+                  size='small'
+                  onPress={() => {}}
+                  icon={{
+                    name: 'filter',
+                    color: 'white',
+                    type: 'font-awesome-5',
+                  }}
+                />
+              </View>
+            </View>
+          </View>
+          <View style={{ flex: 1, justifyContent: 'center' }}>
+            <Text
+              h4
+              style={{
+                fontWeight: 'bold',
+                color: 'gray',
+                textAlign: 'center',
+              }}
+            >
+              No hay eventos para esta fecha...
+            </Text>
+          </View>
         </View>
       )}
     </View>

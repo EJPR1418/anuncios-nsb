@@ -219,9 +219,9 @@ function EventCreateScreen({ navigation }) {
       // console.log(postValues);
       push(dRef(db, 'nsb/events'), postValues);
       formikRef.current.resetForm();
-      // const popAction = StackActions.pop(1);
+      const popAction = StackActions.pop(1);
 
-      // navigation.dispatch(popAction);
+      navigation.dispatch(popAction);
     } catch (ex) {
       setIsLoading(false);
       console.log(ex);

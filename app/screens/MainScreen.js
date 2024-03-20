@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { Text, Icon } from '@rneui/themed';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
@@ -127,7 +127,7 @@ const MainScreen = () => {
   if (initializing) {
     return (
       <View style={styles.container}>
-        <Text>Cargando...</Text>
+        <ActivityIndicator />
       </View>
     );
   }
