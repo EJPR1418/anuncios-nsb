@@ -33,7 +33,7 @@ const Root = () => {
           drawerIcon: ({ focused, size }) => (
             <Icon
               name='home'
-              type='material'
+              type='font-awesome-5'
               size={size}
               color={focused ? '#7cc' : '#ccc'}
             />
@@ -47,8 +47,8 @@ const Root = () => {
           title: 'Perfil',
           drawerIcon: ({ focused, size }) => (
             <Icon
-              name='person'
-              type='material'
+              name='user'
+              type='font-awesome-5'
               size={size}
               color={focused ? '#7cc' : '#ccc'}
             />
@@ -62,8 +62,8 @@ const Root = () => {
           title: 'Ajustes',
           drawerIcon: ({ focused, size }) => (
             <Icon
-              name='settings'
-              type='material'
+              name='cogs'
+              type='font-awesome-5'
               size={size}
               color={focused ? '#7cc' : '#ccc'}
             />
@@ -92,8 +92,8 @@ const Root = () => {
           title: 'Salir',
           drawerIcon: ({ focused, size }) => (
             <Icon
-              name='logout'
-              type='material'
+              name='arrow-right'
+              type='font-awesome-5'
               size={size}
               color={focused ? '#7cc' : '#ccc'}
             />

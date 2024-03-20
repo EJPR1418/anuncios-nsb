@@ -19,7 +19,6 @@ import {
   Icon,
   FAB,
   Dialog,
-  TabView,
 } from '@rneui/themed';
 import { db } from '../firebase/firebase';
 import {
@@ -202,7 +201,7 @@ const HomeScreen = ({ navigation }) => {
         >
           <Text style={styles.itemText}>{item}</Text>
 
-          {shouldDisplayIcon ? ( // Conditionally render the icon
+          {shouldDisplayIcon ? (
             <Icon
               style={{ alignSelf: 'center', marginBottom: 5 }}
               name='hand-point-up'
@@ -247,15 +246,19 @@ const HomeScreen = ({ navigation }) => {
         </View>
         <View style={styles.container}>
           <View style={styles.rowContainer}>
-            <Icon
-              name='map-pin'
-              type='font-awesome-5'
-              color='#002366'
-              size={18}
-            />
-            <Text style={{ textAlign: 'left', fontSize: 16, flex: 1 }}>
-              {item.locationAddress}
-            </Text>
+            <View style={{ marginRight: 5 }}>
+              <Icon
+                name='map-pin'
+                type='font-awesome-5'
+                color='#002366'
+                size={18}
+              />
+            </View>
+            <View>
+              <Text style={{ textAlign: 'left', fontSize: 16, flex: 1 }}>
+                {item.locationAddress}
+              </Text>
+            </View>
           </View>
         </View>
         <Divider />
