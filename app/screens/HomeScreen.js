@@ -397,7 +397,6 @@ const HomeScreen = ({ navigation }) => {
 
             <View>
               <Button title='Fraternidad' onPress={() => {}} />
-
               <Button title='Cerrar' onPress={toggleFilterDialog} />
             </View>
           </Dialog>
