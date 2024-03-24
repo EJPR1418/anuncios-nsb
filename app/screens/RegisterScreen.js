@@ -1,56 +1,78 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Input, Button, Text } from '@rneui/themed';
 import { useNavigation } from '@react-navigation/native';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import { auth } from '../firebase/firebase';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { logout } from '../firebase/helpers';
 
 const RegisterScreen = () => {
   const navigation = useNavigation();
+  const [birthday, setBirthday] = useState(new Date());
 
   const validationSchema = yup.object().shape({
-    email: yup.string().email('Invalid email').required('Email is required'),
     password: yup
       .string()
       .min(6, 'Password must be at least 6 characters')
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
+        'Password must contain at least one uppercase letter, one lowercase letter, one number, one special character'
+      )
       .required('Password is required'),
+    confirmPassword: yup
+      .string()
+      .oneOf([yup.ref('password'), null], 'Passwords must match')
+      .required('Confirm password is required'),
+    name: yup.string().required('Name is required'),
+    initials: yup.string(),
+    lastName: yup.string().required('Last Name is required'),
+    birthday: yup
+      .string()
+      .matches(
+        /^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])-(19|20)\d{2}$/,
+        'Birthday must be in the format MM-DD-YYYY'
+      )
+      .required('Birthday is required'),
+    fraternity: yup.string().required('Fraternity is required'),
+    yearOfInitiation: yup
+      .string()
+      .matches(/^\d{4}$/, 'Invalid year')
+      .required('Year of Initiation is required'),
   });
 
   const formik = useFormik({
     initialValues: {
-      email: '',
       password: '',
+      confirmPassword: '',
+      name: '',
+      initials: '',
+      lastName: '',
+      birthday: '',
+      fraternity: '',
+      yearOfInitiation: '',
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
-      try {
-        // Register the user with Firebase Authentication
-        await auth().createUserWithEmailAndPassword(
-          values.email,
-          values.password
-        );
+      console.log(values);
+      // try {
+      //   // Register the user with Firebase Authentication
+      //   await auth().createUserWithEmailAndPassword(
+      //     values.email,
+      //     values.password
+      //   );
 
-        // Navigate to the desired screen after successful registration
-        navigation.navigate('Home'); // Replace 'Home' with your target screen name
-      } catch (error) {
-        formik.setFieldError('error', error.message);
-      }
+      //   // Navigate to the desired screen after successful registration
+      //   navigation.navigate('Root'); // Replace 'Home' with your target screen name
+      // } catch (error) {
+      //   formik.setFieldError('error', error.message);
+      // }
     },
   });
 
   return (
     <View style={styles.container}>
       <Text h4>Register</Text>
-      <Input
-        placeholder='Email'
-        keyboardType='email-address'
-        autoCapitalize='none'
-        value={formik.values.email}
-        onChangeText={formik.handleChange('email')}
-        onBlur={formik.handleBlur('email')}
-        errorMessage={formik.touched.email && formik.errors.email}
-      />
       <Input
         placeholder='Password'
         secureTextEntry
@@ -59,10 +81,91 @@ const RegisterScreen = () => {
         onBlur={formik.handleBlur('password')}
         errorMessage={formik.touched.password && formik.errors.password}
       />
+      <Input
+        placeholder='Confirm Password'
+        secureTextEntry
+        value={formik.values.confirmPassword}
+        onChangeText={formik.handleChange('confirmPassword')}
+        onBlur={formik.handleBlur('confirmPassword')}
+        errorMessage={
+          formik.touched.confirmPassword && formik.errors.confirmPassword
+        }
+      />
+      <Input
+        placeholder='Name'
+        value={formik.values.name}
+        onChangeText={formik.handleChange('name')}
+        onBlur={formik.handleBlur('name')}
+        errorMessage={formik.touched.name && formik.errors.name}
+      />
+      <Input
+        placeholder='Initials'
+        value={formik.values.initials}
+        onChangeText={formik.handleChange('initials')}
+        onBlur={formik.handleBlur('initials')}
+        errorMessage={formik.touched.initials && formik.errors.initials}
+      />
+      <Input
+        placeholder='Last Name'
+        value={formik.values.lastName}
+        onChangeText={formik.handleChange('lastName')}
+        onBlur={formik.handleBlur('lastName')}
+        errorMessage={formik.touched.lastName && formik.errors.lastName}
+      />
+      <Input
+        placeholder='Birthday (MM-DD-YYYY)'
+        value={formik.values.birthday}
+        onChangeText={formik.handleChange('birthday')}
+        onBlur={formik.handleBlur('birthday')}
+        errorMessage={formik.touched.birthday && formik.errors.birthday}
+      />
+      {/* <DateTimePicker
+        value={birthday}
+        onDateChange={(date) => setBirthday(date)}
+        mode='date'
+        placeholder='Select birthday'
+        confirmBtnText='Confirm'
+        cancelBtnText='Cancel'
+      /> */}
+      <Input
+        placeholder='Year of Initiation'
+        keyboardType='numeric'
+        value={formik.values.yearOfInitiation}
+        onChangeText={formik.handleChange('yearOfInitiation')}
+        onBlur={formik.handleBlur('yearOfInitiation')}
+        errorMessage={
+          formik.touched.yearOfInitiation && formik.errors.yearOfInitiation
+        }
+      />
+      <View style={styles.containerSeparator}>
+        <View>
+          <Button
+            title='Registrar'
+            buttonStyle={{
+              backgroundColor: '#002366',
+              borderRadius: 20,
+              marginBottom: 10,
+            }}
+            onPress={formik.handleSubmit}
+          />
+        </View>
+        <View>
+          <Button
+            title='Cancelar'
+            buttonStyle={{
+              backgroundColor: 'red',
+              borderRadius: 20,
+            }}
+            onPress={async () => {
+              await logout();
+            }}
+          />
+        </View>
+      </View>
+
       {formik.errors.error && (
         <Text style={styles.errorText}>{formik.errors.error}</Text>
       )}
-      <Button title='Register' onPress={formik.handleSubmit} />
     </View>
   );
 };
@@ -73,9 +176,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
   },
+  containerSeparator: {
+    marginTop: 20,
+  },
   errorText: {
     color: 'red',
     marginTop: 10,
+  },
+  buttonContainer: {
+    flex: 1,
   },
 });
 
