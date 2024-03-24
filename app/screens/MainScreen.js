@@ -16,7 +16,8 @@ import RegisterScreen from './RegisterScreen';
 
 import MapComponent from '../components/MapComponent';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../firebase/firebase';
+import { ref as dRef, get } from 'firebase/database';
+import { auth, db } from '../firebase/firebase';
 // import auth from '@react-native-firebase/auth';
 
 const Stack = createNativeStackNavigator();
@@ -70,21 +71,6 @@ const Root = () => {
           ),
         }}
       />
-      {/* <Drawer.Screen
-        name='Crear_Evento'
-        component={EventCreateScreen}
-        options={{
-          title: 'Crear Evento',
-          drawerIcon: ({ focused, size }) => (
-            <Icon
-              name='settings'
-              type='material'
-              size={size}
-              color={focused ? '#7cc' : '#ccc'}
-            />
-          ),
-        }}
-      /> */}
       <Drawer.Screen
         name='Salir'
         component={LogoutScreen}
@@ -109,19 +95,26 @@ const MainScreen = () => {
   const [user, setUser] = useState(null);
 
   // Handle user state changes
-  const onAuthStateChangedHandler = (user) => {
-    setUser(user);
-    if (initializing) {
-      setInitializing(false);
-    }
-  };
+  // const onAuthStateChangedHandler = async (user) => {
+  //   setUser(user);
+  //   if (initializing) {
+  //     setInitializing(false);
+  //   }
+  //   const userRef = dRef(db, `users/${user.uid}`);
+  //   const snapshot = await get(userRef);
+  //   if (snapshot.exists()) {
+  //     setIsUserRegistered(true);
+  //   }
+  // };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, onAuthStateChangedHandler);
-
-    return unsubscribe;
-    // const subscriber = auth.onAuthStateChanged(onAuthStateChanged);
-    // return subscriber; // unsubscribe on unmount
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setUser(user);
+      if (initializing) {
+        setInitializing(false);
+      }
+    });
+    return () => unsubscribe();
   }, []);
 
   if (initializing) {

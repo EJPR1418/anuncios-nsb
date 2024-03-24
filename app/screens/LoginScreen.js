@@ -5,6 +5,8 @@ import { useNavigation } from '@react-navigation/native'; // Import the useNavig
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import { login, emailVerification, logout } from '../firebase/helpers';
+import { ref as dRef, get } from 'firebase/database';
+import { db } from '../firebase/firebase';
 
 const loginSchema = yup.object().shape({
   email: yup
@@ -16,6 +18,15 @@ const loginSchema = yup.object().shape({
 
 const LoginScreen = () => {
   const navigation = useNavigation();
+  const [isUserRegistered, setIsUserRegistered] = useState(false);
+
+  const checkIfUserExistsInDatabase = async (userId) => {
+    const userRef = dRef(db, `nsb/users/${userId}`);
+    const snapshot = await get(userRef);
+    if (snapshot.exists()) {
+      setIsUserRegistered(true);
+    }
+  };
 
   const onSubmit = async (values) => {
     try {
@@ -24,8 +35,17 @@ const LoginScreen = () => {
         if (!user.emailVerified) {
           await emailVerification();
           await logout();
+        } else {
+          // Check if user exists in the database
+          // Replace this logic with your own database check
+          await checkIfUserExistsInDatabase(user.uid);
+
+          if (isUserRegistered) {
+            navigation.navigate('Root'); // User exists, navigate to root screen
+          } else {
+            navigation.navigate('Register'); // User doesn't exist, navigate to register screen
+          }
         }
-        // navigation.navigate('Root');
       }
     } catch (error) {
       if (
