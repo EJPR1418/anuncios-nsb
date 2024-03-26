@@ -9,6 +9,7 @@ const DropdownComponent = ({
   placeholder,
   onSelect,
   editable,
+  isSearch,
 }) => {
   const [value, setValue] = useState(selected);
 
@@ -21,6 +22,7 @@ const DropdownComponent = ({
         selectedTextStyle={styles.selectedTextStyle}
         inputSearchStyle={styles.inputSearchStyle}
         iconStyle={styles.iconStyle}
+        search={isSearch}
         data={data}
         maxHeight={300}
         labelField='label'
@@ -43,6 +45,7 @@ DropdownComponent.propTypes = {
   onSelect: PropTypes.func.isRequired,
   placeholder: PropTypes.string.isRequired,
   editable: PropTypes.bool.isRequired,
+  isSearch: PropTypes.bool,
 };
 
 export default DropdownComponent;
@@ -61,10 +64,10 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   placeholderStyle: {
-    fontSize: 16,
+    fontSize: 18,
   },
   selectedTextStyle: {
-    fontSize: 16,
+    fontSize: 18,
   },
   iconStyle: {
     width: 20,

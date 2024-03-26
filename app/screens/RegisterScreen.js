@@ -70,10 +70,14 @@ const RegisterScreen = () => {
     birthday: yup
       .string()
       .matches(
-        /^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])-(19|20)\d{2}$/,
+        /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/(19|20)\d{2}$/,
         'Birthday must be in the format MM-DD-YYYY'
       )
       .required('Birthday is required'),
+    phoneNumber: yup
+      .string()
+      .matches(/^[0-9]{10}$/, 'Phone number must be 10 digits')
+      .required('Phone number is required'),
     fraternity: yup.string().required('Fraternity is required'),
     yearOfInitiation: yup
       .string()
@@ -89,6 +93,7 @@ const RegisterScreen = () => {
       initials: '',
       lastName: '',
       birthday: '',
+      phoneNumber: '',
       fraternity: '',
       yearOfInitiation: '',
     },
@@ -114,7 +119,7 @@ const RegisterScreen = () => {
     <View style={styles.container}>
       <Text h4>Register</Text>
       <Input
-        placeholder='Password'
+        placeholder='Nueva Contraseña'
         secureTextEntry
         value={formik.values.password}
         onChangeText={formik.handleChange('password')}
@@ -122,7 +127,7 @@ const RegisterScreen = () => {
         errorMessage={formik.touched.password && formik.errors.password}
       />
       <Input
-        placeholder='Confirm Password'
+        placeholder='Confirmar Contraseña'
         secureTextEntry
         value={formik.values.confirmPassword}
         onChangeText={formik.handleChange('confirmPassword')}
@@ -132,32 +137,40 @@ const RegisterScreen = () => {
         }
       />
       <Input
-        placeholder='Name'
+        placeholder='Primer Nombre'
         value={formik.values.name}
         onChangeText={formik.handleChange('name')}
         onBlur={formik.handleBlur('name')}
         errorMessage={formik.touched.name && formik.errors.name}
       />
       <Input
-        placeholder='Initials'
+        placeholder='Segundo Nombre'
         value={formik.values.initials}
         onChangeText={formik.handleChange('initials')}
         onBlur={formik.handleBlur('initials')}
         errorMessage={formik.touched.initials && formik.errors.initials}
       />
       <Input
-        placeholder='Last Name'
+        placeholder='Apellidos'
         value={formik.values.lastName}
         onChangeText={formik.handleChange('lastName')}
         onBlur={formik.handleBlur('lastName')}
         errorMessage={formik.touched.lastName && formik.errors.lastName}
       />
       <Input
-        placeholder='Birthday (MM-DD-YYYY)'
+        placeholder='Fecha de Nacimiento (MM/DD/YYYY)'
         value={formik.values.birthday}
         onChangeText={formik.handleChange('birthday')}
         onBlur={formik.handleBlur('birthday')}
         errorMessage={formik.touched.birthday && formik.errors.birthday}
+      />
+      <Input
+        placeholder='Número de Teléfono'
+        keyboardType='phone-pad'
+        value={formik.values.phoneNumber}
+        onChangeText={formik.handleChange('phoneNumber')}
+        onBlur={formik.handleBlur('phoneNumber')}
+        errorMessage={formik.touched.phoneNumber && formik.errors.phoneNumber}
       />
       {/* <DateTimePicker
         value={birthday}
@@ -167,20 +180,6 @@ const RegisterScreen = () => {
         confirmBtnText='Confirm'
         cancelBtnText='Cancel'
       /> */}
-      <DropdownComponent
-        editable={false}
-        data={fraternityList}
-        selected={formik.values.type}
-        onSelect={(fraternity) => {
-          formik.setFieldValue('fraternity', fraternity);
-        }}
-        placeholder='Seleccione'
-      />
-      {formik.errors.type && formik.touched.type && (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{formik.errors.fraternity}</Text>
-        </View>
-      )}
       <Input
         placeholder='Year of Initiation'
         keyboardType='numeric'
@@ -191,6 +190,21 @@ const RegisterScreen = () => {
           formik.touched.yearOfInitiation && formik.errors.yearOfInitiation
         }
       />
+      <DropdownComponent
+        editable={false}
+        data={fraternityList}
+        selected={formik.values.fraternity}
+        onSelect={(fraternity) => {
+          formik.setFieldValue('fraternity', fraternity);
+        }}
+        placeholder='Seleccione'
+        isSearch={true}
+      />
+      {formik.errors.type && formik.touched.type && (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{formik.errors.fraternity}</Text>
+        </View>
+      )}
       <View style={styles.containerSeparator}>
         <View>
           <Button
