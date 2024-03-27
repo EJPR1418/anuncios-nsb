@@ -13,43 +13,6 @@ import DropdownComponent from '../components/DropdownComponent';
 const RegisterScreen = () => {
   const navigation = useNavigation();
   const [birthday, setBirthday] = useState(new Date());
-  // const [fraternityList, setFraternityList] = useState([]);
-
-  // useEffect(() => {
-  //   let unsubscribeFraternities;
-
-  //   try {
-  //     unsubscribeFraternities = onValue(
-  //       dRef(db, 'nsb/fraternities/'),
-  //       (snapshot) => {
-  //         const dataVal = snapshot.val();
-  //         if (dataVal) {
-  //           const dataArr = Object.keys(dataVal).map((key) => ({
-  //             id: key,
-  //             ...dataVal[key],
-  //           }));
-
-  //           //console.log(dataArr);
-  //           setFraternityList(dataArr);
-  //         } else {
-  //           setFraternityList([]);
-  //         }
-  //       }
-  //     );
-  //   } catch (error) {
-  //     console.error('Error setting up Firebase listener:', error);
-  //   }
-
-  //   return () => {
-  //     try {
-  //       if (unsubscribeFraternities) {
-  //         unsubscribeFraternities();
-  //       }
-  //     } catch (error) {
-  //       console.error('Error unsubscribing from Firebase listener:', error);
-  //     }
-  //   };
-  // }, []);
 
   const validationSchema = yup.object().shape({
     password: yup
@@ -172,39 +135,6 @@ const RegisterScreen = () => {
         onBlur={formik.handleBlur('phoneNumber')}
         errorMessage={formik.touched.phoneNumber && formik.errors.phoneNumber}
       />
-      {/* <DateTimePicker
-        value={birthday}
-        onDateChange={(date) => setBirthday(date)}
-        mode='date'
-        placeholder='Select birthday'
-        confirmBtnText='Confirm'
-        cancelBtnText='Cancel'
-      /> */}
-      {/* <Input
-        placeholder='Year of Initiation'
-        keyboardType='numeric'
-        value={formik.values.yearOfInitiation}
-        onChangeText={formik.handleChange('yearOfInitiation')}
-        onBlur={formik.handleBlur('yearOfInitiation')}
-        errorMessage={
-          formik.touched.yearOfInitiation && formik.errors.yearOfInitiation
-        }
-      /> */}
-      {/* <DropdownComponent
-        editable={false}
-        data={fraternityList}
-        selected={formik.values.fraternity}
-        onSelect={(fraternity) => {
-          formik.setFieldValue('fraternity', fraternity);
-        }}
-        placeholder='Seleccione'
-        isSearch={true}
-      />
-      {formik.errors.type && formik.touched.type && (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{formik.errors.fraternity}</Text>
-        </View>
-      )} */}
       <View style={styles.containerSeparator}>
         <View>
           <Button
