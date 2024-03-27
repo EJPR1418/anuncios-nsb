@@ -5,8 +5,8 @@ import { useNavigation } from '@react-navigation/native';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { logout } from '../firebase/helpers';
-import { ref as dRef, onValue } from 'firebase/database';
-import { db } from '../firebase/firebase';
+import { ref as dRef, set } from 'firebase/database';
+import { auth, db } from '../firebase/firebase';
 
 import DropdownComponent from '../components/DropdownComponent';
 
@@ -57,19 +57,38 @@ const RegisterScreen = () => {
       lastName: '',
       birthday: '',
       phoneNumber: '',
-      fraternity: '',
-      yearOfInitiation: '',
+      membership: '',
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
-      console.log(values);
+      const { password, confirmPassword, ...remainingValues } = values;
+      const membership = 'active';
+      const editedBy = auth.currentUser.uid;
+      const editedDate = new Date();
+
+      const postValues = {
+        ...remainingValues,
+        membership,
+        editedBy,
+        editedDate,
+      };
+
+      console.log(postValues);
+
+      // Add logic to add data to the database
+      // const userRef = dRef(db, `nsb/users/${auth.currentUser.uid}`);
+      // try {
+      //   await auth.currentUser.updatePassword(password);
+      //   await set(userRef, postValues);
+      //   console.log('Data added successfully.');
+      // } catch (error) {
+      //   console.error('Error adding data:', error);
+      // }
+
+      // Uncomment and modify the following block for user registration logic
       // try {
       //   // Register the user with Firebase Authentication
-      //   await auth().createUserWithEmailAndPassword(
-      //     values.email,
-      //     values.password
-      //   );
-
+      //   await auth().createUserWithEmailAndPassword(values.email, values.password);
       //   // Navigate to the desired screen after successful registration
       //   navigation.navigate('Root'); // Replace 'Home' with your target screen name
       // } catch (error) {
@@ -80,27 +99,11 @@ const RegisterScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text h4>Register</Text>
+      <Text style={{ alignSelf: 'center', marginBottom: 30 }} h4>
+        Quien eres?
+      </Text>
       <Input
-        placeholder='Nueva Contraseña'
-        secureTextEntry
-        value={formik.values.password}
-        onChangeText={formik.handleChange('password')}
-        onBlur={formik.handleBlur('password')}
-        errorMessage={formik.touched.password && formik.errors.password}
-      />
-      <Input
-        placeholder='Confirmar Contraseña'
-        secureTextEntry
-        value={formik.values.confirmPassword}
-        onChangeText={formik.handleChange('confirmPassword')}
-        onBlur={formik.handleBlur('confirmPassword')}
-        errorMessage={
-          formik.touched.confirmPassword && formik.errors.confirmPassword
-        }
-      />
-      <Input
-        placeholder='Primer Nombre'
+        placeholder='Nombre'
         value={formik.values.name}
         onChangeText={formik.handleChange('name')}
         onBlur={formik.handleBlur('name')}
@@ -135,6 +138,24 @@ const RegisterScreen = () => {
         onBlur={formik.handleBlur('phoneNumber')}
         errorMessage={formik.touched.phoneNumber && formik.errors.phoneNumber}
       />
+      <Input
+        placeholder='Nueva Contraseña'
+        secureTextEntry
+        value={formik.values.password}
+        onChangeText={formik.handleChange('password')}
+        onBlur={formik.handleBlur('password')}
+        errorMessage={formik.touched.password && formik.errors.password}
+      />
+      <Input
+        placeholder='Confirmar Contraseña'
+        secureTextEntry
+        value={formik.values.confirmPassword}
+        onChangeText={formik.handleChange('confirmPassword')}
+        onBlur={formik.handleBlur('confirmPassword')}
+        errorMessage={
+          formik.touched.confirmPassword && formik.errors.confirmPassword
+        }
+      />
       <View style={styles.containerSeparator}>
         <View>
           <Button
@@ -147,7 +168,7 @@ const RegisterScreen = () => {
             onPress={formik.handleSubmit}
           />
         </View>
-        <View>
+        {/* <View>
           <Button
             title='Cancelar'
             buttonStyle={{
@@ -159,7 +180,7 @@ const RegisterScreen = () => {
               navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
             }}
           />
-        </View>
+        </View> */}
       </View>
 
       {formik.errors.error && (
