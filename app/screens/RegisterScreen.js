@@ -13,43 +13,43 @@ import DropdownComponent from '../components/DropdownComponent';
 const RegisterScreen = () => {
   const navigation = useNavigation();
   const [birthday, setBirthday] = useState(new Date());
-  const [fraternityList, setFraternityList] = useState([]);
+  // const [fraternityList, setFraternityList] = useState([]);
 
-  useEffect(() => {
-    let unsubscribeFraternities;
+  // useEffect(() => {
+  //   let unsubscribeFraternities;
 
-    try {
-      unsubscribeFraternities = onValue(
-        dRef(db, 'nsb/fraternities/'),
-        (snapshot) => {
-          const dataVal = snapshot.val();
-          if (dataVal) {
-            const dataArr = Object.keys(dataVal).map((key) => ({
-              id: key,
-              ...dataVal[key],
-            }));
+  //   try {
+  //     unsubscribeFraternities = onValue(
+  //       dRef(db, 'nsb/fraternities/'),
+  //       (snapshot) => {
+  //         const dataVal = snapshot.val();
+  //         if (dataVal) {
+  //           const dataArr = Object.keys(dataVal).map((key) => ({
+  //             id: key,
+  //             ...dataVal[key],
+  //           }));
 
-            //console.log(dataArr);
-            setFraternityList(dataArr);
-          } else {
-            setFraternityList([]);
-          }
-        }
-      );
-    } catch (error) {
-      console.error('Error setting up Firebase listener:', error);
-    }
+  //           //console.log(dataArr);
+  //           setFraternityList(dataArr);
+  //         } else {
+  //           setFraternityList([]);
+  //         }
+  //       }
+  //     );
+  //   } catch (error) {
+  //     console.error('Error setting up Firebase listener:', error);
+  //   }
 
-    return () => {
-      try {
-        if (unsubscribeFraternities) {
-          unsubscribeFraternities();
-        }
-      } catch (error) {
-        console.error('Error unsubscribing from Firebase listener:', error);
-      }
-    };
-  }, []);
+  //   return () => {
+  //     try {
+  //       if (unsubscribeFraternities) {
+  //         unsubscribeFraternities();
+  //       }
+  //     } catch (error) {
+  //       console.error('Error unsubscribing from Firebase listener:', error);
+  //     }
+  //   };
+  // }, []);
 
   const validationSchema = yup.object().shape({
     password: yup
@@ -180,7 +180,7 @@ const RegisterScreen = () => {
         confirmBtnText='Confirm'
         cancelBtnText='Cancel'
       /> */}
-      <Input
+      {/* <Input
         placeholder='Year of Initiation'
         keyboardType='numeric'
         value={formik.values.yearOfInitiation}
@@ -189,8 +189,8 @@ const RegisterScreen = () => {
         errorMessage={
           formik.touched.yearOfInitiation && formik.errors.yearOfInitiation
         }
-      />
-      <DropdownComponent
+      /> */}
+      {/* <DropdownComponent
         editable={false}
         data={fraternityList}
         selected={formik.values.fraternity}
@@ -204,7 +204,7 @@ const RegisterScreen = () => {
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>{formik.errors.fraternity}</Text>
         </View>
-      )}
+      )} */}
       <View style={styles.containerSeparator}>
         <View>
           <Button

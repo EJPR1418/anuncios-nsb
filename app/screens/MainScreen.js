@@ -128,7 +128,6 @@ const MainScreen = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        {/* Set Login as the initial route */}
         {user ? (
           <Stack.Screen
             name='Root'
@@ -144,17 +143,6 @@ const MainScreen = () => {
             />
           </>
         )}
-
-        {/* <Stack.Screen
-          name='Login'
-          component={LoginScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name='Root'
-          component={Root}
-          options={{ headerShown: false }}
-        /> */}
         <Stack.Screen
           name='Register'
           component={RegisterScreen}

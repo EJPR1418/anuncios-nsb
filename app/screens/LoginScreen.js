@@ -36,14 +36,12 @@ const LoginScreen = () => {
           await emailVerification();
           await logout();
         } else {
-          // Check if user exists in the database
-          // Replace this logic with your own database check
           await checkIfUserExistsInDatabase(user.uid);
 
           if (isUserRegistered) {
-            navigation.navigate('Root'); // User exists, navigate to root screen
+            navigation.navigate('Root');
           } else {
-            navigation.navigate('Register'); // User doesn't exist, navigate to register screen
+            navigation.navigate('Register');
           }
         }
       }
